@@ -1,0 +1,15 @@
+[phases.setup]
+nixPkgs = ["nodejs_20", "pnpm"]
+
+[phases.install]
+cmds = ["pnpm install --frozen-lockfile --prod=false --child-concurrency=2"]
+
+[phases.build]
+cmds = ["pnpm build", "pnpm prune --prod"]
+
+[start]
+cmd = "pnpm db:deploy-migrate && node .output/server/index.mjs"
+
+[variables]
+NODE_ENV = "production"
+NIXPACKS_NODE_VERSION = "20.20.0"

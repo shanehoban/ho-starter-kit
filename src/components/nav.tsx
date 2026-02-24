@@ -46,7 +46,10 @@ export function Nav({
 						{isAdmin && (
 							<>
 								<Button variant="ghost" size="sm" asChild>
-									<Link to="/admin/users" activeProps={{ className: "bg-accent" }}>
+									<Link
+										to="/admin/users"
+										activeProps={{ className: "bg-accent" }}
+									>
 										<Shield className="mr-1 h-4 w-4" />
 										Users
 										{pendingApprovalCount ? (
@@ -57,7 +60,10 @@ export function Nav({
 									</Link>
 								</Button>
 								<Button variant="ghost" size="sm" asChild>
-									<Link to="/admin/email-logs" activeProps={{ className: "bg-accent" }}>
+									<Link
+										to="/admin/email-logs"
+										activeProps={{ className: "bg-accent" }}
+									>
 										Email Logs
 									</Link>
 								</Button>
@@ -70,18 +76,26 @@ export function Nav({
 					<ThemeToggle variant="ghost" size="icon" />
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<Button variant="outline" size="sm" className="h-8 flex items-center justify-center">
+							<Button
+								variant="outline"
+								size="sm"
+								className="h-8 flex items-center justify-center"
+							>
 								<Menu className="h-4 w-4 sm:hidden" />
 								<span className="text-sm font-medium sm:hidden">Menu</span>
 								<User className="hidden h-4 w-4 sm:block" />
-								<span className="hidden max-w-28 truncate sm:inline">{user.name}</span>
+								<span className="hidden max-w-28 truncate sm:inline">
+									{user.name}
+								</span>
 								<ChevronDown className="hidden h-3.5 w-3.5 text-muted-foreground sm:block" />
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end" className="w-56 p-1.5">
 							<div className="rounded-md bg-muted/40 px-2.5 py-2">
 								<div className="text-sm font-medium">{user.name}</div>
-								<div className="truncate text-xs text-muted-foreground">{user.email}</div>
+								<div className="truncate text-xs text-muted-foreground">
+									{user.email}
+								</div>
 							</div>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem asChild>
@@ -96,7 +110,7 @@ export function Nav({
 							{isAdmin && (
 								<>
 									<DropdownMenuItem asChild>
-										<Link to="/admin/users">Admin Users</Link>
+										<Link to="/admin">Admin</Link>
 									</DropdownMenuItem>
 									<DropdownMenuItem asChild>
 										<Link to="/admin/email-logs">Email Logs</Link>

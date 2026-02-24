@@ -7,6 +7,8 @@ TanStack Start + Better Auth + Drizzle starter with:
 - reusable UI primitives and protected route patterns
 - migration scripts ready for local + Coolify deploys
 
+## | [Demo](https://hsk.shanehoban.com) | [Docs](https://hsk.shanehoban.com/docs) |
+
 ## Quick start
 
 ```bash

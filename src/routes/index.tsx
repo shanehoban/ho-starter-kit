@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, CheckCircle2, Database, Rocket, ShieldCheck } from "lucide-react";
+import { ArrowRight, CheckCircle2, Database, Github, Rocket, ShieldCheck } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,8 @@ import { useSession } from "@/lib/auth-client";
 export const Route = createFileRoute("/")({
 	component: HomePage,
 });
+
+const githubRepoUrl = "https://github.com/shanehoban/ho-starter-kit";
 
 const pillars = [
 	{
@@ -47,7 +49,18 @@ function HomePage() {
 	return (
 		<div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-8 sm:py-10">
 			<section className="relative overflow-hidden rounded-2xl border border-border/80 bg-card/80 p-6 shadow-sm sm:p-8">
-				<div className="absolute top-4 right-4 z-10">
+				<div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+					<Button variant="outline" size="icon" asChild>
+						<a
+							href={githubRepoUrl}
+							target="_blank"
+							rel="noreferrer"
+							aria-label="Open ho-starter-kit on GitHub"
+							title="Open ho-starter-kit on GitHub"
+						>
+							<Github className="h-4 w-4" />
+						</a>
+					</Button>
 					<ThemeToggle variant="outline" size="icon" />
 				</div>
 				<div
@@ -60,14 +73,14 @@ function HomePage() {
 							variant="secondary"
 							className="px-3 py-1 text-[0.7rem] tracking-[0.12em] uppercase"
 						>
-							Production-ready starter
+							Open-source starter kit
 						</Badge>
 						<h1 className="max-w-3xl text-3xl font-semibold tracking-tight sm:text-5xl">
-							Ship faster from a solid baseline.
+							ho-starter-kit
 						</h1>
 						<p className="max-w-3xl text-sm text-muted-foreground sm:text-base">
-							<b>HoStarterKit</b> gives you authentication, role-based access, migration safety, and
-							deployment defaults before feature work begins.
+							TanStack Start template with production-oriented auth, role access, migration safety,
+							and deployment defaults.
 						</p>
 					</div>
 
@@ -124,7 +137,7 @@ function HomePage() {
 			<section className="mt-5">
 				<Card className="border-border/80 shadow-sm">
 					<CardHeader>
-						<CardTitle>What you get immediately</CardTitle>
+						<CardTitle>What you get out of the box</CardTitle>
 						<CardDescription>
 							A practical default stack designed for internal tools, SaaS dashboards, and
 							admin-heavy products.

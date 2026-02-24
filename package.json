@@ -49,7 +49,7 @@
     "@react-email/components": "^1.0.7",
     "@react-email/render": "^2.0.4",
     "@tailwindcss/vite": "^4.0.6",
-    "@tanstack/react-devtools": "^0.9.5",
+    "@tanstack/react-devtools": "^0.9.6",
     "@tanstack/react-router": "^1.160.2",
     "@tanstack/react-router-devtools": "^1.160.2",
     "@tanstack/react-router-ssr-query": "^1.160.2",

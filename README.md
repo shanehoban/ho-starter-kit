@@ -67,6 +67,7 @@ Postgres:
 - `DB_PROVIDER=postgres`
 - `DATABASE_URL=postgres://postgres:postgres@localhost:5432/ho_starter_kit` (for host runtime)
 - run `pnpm db:generate:postgres` then `pnpm db:apply-migrations`
+- `db:apply-migrations` reads `.env` automatically
 - local postgres helper: `pnpm start:local:db`
 - stop local postgres: `pnpm stop:local:db`
 - run app in separate terminal: `pnpm dev`
@@ -129,6 +130,10 @@ Audit policy:
 - optional: `Dockerfile`
 - sqlite on Coolify requires persistent storage mount at `/app/data`
 - postgres path uses `DB_PROVIDER=postgres` + `DATABASE_URL` (no sqlite volume required)
+- `DB_PROVIDER=postgres` does not provision Postgres automatically; create a separate Coolify Postgres service unless you deploy with Docker Compose stack mode
+- Docker Compose stack mode can run app + Postgres together; in that mode use host `postgres` in `DATABASE_URL`
+- for Compose stack mode on Coolify, select Docker Compose and set file/path to `docker-compose.postgres.yml`
+- compose file supports `${VAR}` injection from Coolify stack envs (set `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, Postgres vars, and `DATABASE_URL`)
 
 ## Optional advanced patterns from hobnb
 

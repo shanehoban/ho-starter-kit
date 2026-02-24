@@ -453,7 +453,8 @@ pnpm dev`}
 						</pre>
 						<p className="text-sm text-muted-foreground">
 							Local Postgres mode expects Postgres running first (docker recommended), then run
-							<code>pnpm dev</code> in a separate terminal.
+							<code>pnpm dev</code> in a separate terminal. Migration scripts load variables from{" "}
+							<code>.env</code> automatically.
 						</p>
 					</CardContent>
 				</Card>
@@ -502,20 +503,98 @@ pnpm dev`}
 							needed when you want app + Postgres in one stack.
 						</p>
 						<div className="rounded-md border border-border/70 bg-background/60 p-3 text-sm">
-							<p className="font-medium text-foreground">SQLite on Coolify</p>
+							<p className="font-medium text-foreground">Important behavior</p>
 							<p className="mt-1 text-muted-foreground">
-								Configure persistent storage mount at <code>/app/data</code> and set:
-								<code>DB_PROVIDER=sqlite</code>, <code>DB_PATH=/app/data/sqlite.db</code>,
-								<code>BACKUP_DIR=/app/data/backups</code>. Optional:
-								<code>UPLOAD_DIR=/app/data/uploads</code>.
+								Setting <code>DB_PROVIDER=postgres</code> only switches app runtime behavior. It
+								does not create or start a Postgres database automatically.
 							</p>
 						</div>
+						<section className="grid gap-4 md:grid-cols-2">
+							<div className="rounded-md border border-border/70 bg-background/60 p-3 text-sm">
+								<p className="font-medium text-foreground">
+									SQLite on Coolify (single app service)
+								</p>
+								<ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
+									<li>Deploy app using Nixpacks (recommended) or Dockerfile.</li>
+									<li>
+										Add persistent storage mount at <code>/app/data</code>.
+									</li>
+									<li>No external DB service is required.</li>
+								</ul>
+								<pre className="mt-3 overflow-x-auto rounded-md border border-border/70 bg-background p-2 text-xs">
+									{`DB_PROVIDER=sqlite
+DB_PATH=/app/data/sqlite.db
+BACKUP_DIR=/app/data/backups
+BETTER_AUTH_URL=https://your-app.example
+BETTER_AUTH_SECRET=...`}
+								</pre>
+							</div>
+							<div className="rounded-md border border-border/70 bg-background/60 p-3 text-sm">
+								<p className="font-medium text-foreground">
+									Postgres on Coolify (single app + separate DB service)
+								</p>
+								<ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
+									<li>Deploy app using Nixpacks (recommended) or Dockerfile.</li>
+									<li>
+										Create a Postgres service in Coolify (or use an external managed Postgres).
+									</li>
+									<li>
+										Set <code>DATABASE_URL</code> to that service connection string.
+									</li>
+									<li>Do not configure SQLite volume settings for this mode.</li>
+								</ul>
+								<pre className="mt-3 overflow-x-auto rounded-md border border-border/70 bg-background p-2 text-xs">
+									{`DB_PROVIDER=postgres
+DATABASE_URL=postgres://user:password@postgres-host:5432/db_name
+BETTER_AUTH_URL=https://your-app.example
+BETTER_AUTH_SECRET=...`}
+								</pre>
+							</div>
+						</section>
 						<div className="rounded-md border border-border/70 bg-background/60 p-3 text-sm">
-							<p className="font-medium text-foreground">Postgres on Coolify</p>
+							<p className="font-medium text-foreground">
+								Docker Compose stack mode (app + Postgres together)
+							</p>
 							<p className="mt-1 text-muted-foreground">
-								Use a managed Postgres service (Coolify DB service or external) and set:
-								<code>DB_PROVIDER=postgres</code>, <code>DATABASE_URL=postgres://...</code>. No
-								SQLite persistent volume is required in this mode.
+								Use this only if you want Coolify to run web + database in one compose stack. In
+								this mode, app-to-DB host is typically the compose service name (for this repo:
+								<code>postgres</code>), not <code>localhost</code>.
+							</p>
+							<ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
+								<li>Coolify resource type: Docker Compose.</li>
+								<li>
+									Compose file/path: <code>docker-compose.postgres.yml</code>.
+								</li>
+								<li>
+									Expose the <code>app</code> service (port <code>3000</code>).
+								</li>
+							</ul>
+							<pre className="mt-3 overflow-x-auto rounded-md border border-border/70 bg-background p-2 text-xs">
+								{`DB_PROVIDER=postgres
+DATABASE_URL=postgres://postgres:postgres@postgres:5432/ho_starter_kit`}
+							</pre>
+						</div>
+						<div className="rounded-md border border-border/70 bg-background/60 p-3 text-sm">
+							<p className="font-medium text-foreground">Environment variable injection</p>
+							<p className="mt-1 text-muted-foreground">
+								Compose uses <code>${"{VAR}"}</code> substitution, so set variables once in Coolify
+								(stack environment) and they are injected into services automatically.
+							</p>
+							<pre className="mt-3 overflow-x-auto rounded-md border border-border/70 bg-background p-2 text-xs">
+								{`# required
+BETTER_AUTH_SECRET=...
+BETTER_AUTH_URL=https://your-app.example
+DB_PROVIDER=postgres
+
+# recommended explicit Postgres values
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=change-this
+POSTGRES_DB=ho_starter_kit
+DATABASE_URL=postgres://postgres:change-this@postgres:5432/ho_starter_kit`}
+							</pre>
+							<p className="mt-2 text-muted-foreground">
+								If you change <code>POSTGRES_USER</code>, <code>POSTGRES_PASSWORD</code>, or{" "}
+								<code>POSTGRES_DB</code>, update <code>DATABASE_URL</code> to match.
 							</p>
 						</div>
 						<pre className="overflow-x-auto rounded-md border border-border/70 bg-background/60 p-3 text-xs sm:text-sm">
@@ -525,27 +604,10 @@ pnpm db:deploy-migrate
 node .output/server/index.mjs`}
 						</pre>
 						<p className="text-sm text-muted-foreground">
-							For CI/release parity in Postgres mode, release audit uses
-							<code>docker-compose.audit-postgres.yml</code>.
+							For Postgres release checks, <code>pnpm release:audit:postgres</code> starts a
+							temporary database from <code>docker-compose.audit-postgres.yml</code> to mirror CI.
+							This file is for audit/test runs only, not normal app deployment.
 						</p>
-					</CardContent>
-				</Card>
-
-				<Card className="border-border/80 shadow-sm">
-					<CardHeader>
-						<CardTitle className="inline-flex items-center gap-2">
-							<FileCheck2 className="h-4 w-4" />
-							Monorepo helper (optional)
-						</CardTitle>
-						<CardDescription>
-							If using shanes-mono-repo, scaffold from root helper script.
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<pre className="overflow-x-auto rounded-md border border-border/70 bg-background/60 p-3 text-xs sm:text-sm">
-							{`# from shanes-mono-repo root
-node new-project.js my-project-name`}
-						</pre>
 					</CardContent>
 				</Card>
 			</section>

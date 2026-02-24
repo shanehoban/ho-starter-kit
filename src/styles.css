@@ -176,6 +176,21 @@ code {
 	body {
 		@apply bg-background text-foreground;
 	}
+	:not(pre) > code {
+		@apply rounded-md border border-border/80 bg-muted/55 px-1.5 py-0.5 text-[0.88em] font-medium text-foreground;
+	}
+	p > code,
+	li > code {
+		margin-inline: 0.18em;
+	}
+	p > code:first-child,
+	li > code:first-child {
+		margin-left: 0;
+	}
+	p > code:last-child,
+	li > code:last-child {
+		margin-right: 0;
+	}
 	a {
 		@apply transition-colors;
 	}

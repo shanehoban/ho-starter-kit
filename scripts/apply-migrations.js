@@ -10,12 +10,48 @@ import { drizzle as drizzlePg } from "drizzle-orm/postgres-js";
 import { migrate as migrateSqlite } from "drizzle-orm/better-sqlite3/migrator";
 import { migrate as migratePostgres } from "drizzle-orm/postgres-js/migrator";
 
+loadEnvFile();
+
 const provider = process.env.DB_PROVIDER === "postgres" ? "postgres" : "sqlite";
 
 if (provider === "postgres") {
 	await applyPostgresMigrations();
 } else {
 	applySqliteMigrations();
+}
+
+function loadEnvFile() {
+	const envPath = path.resolve(process.cwd(), ".env");
+	if (!fs.existsSync(envPath)) {
+		return;
+	}
+
+	const contents = fs.readFileSync(envPath, "utf8");
+	for (const rawLine of contents.split(/\r?\n/)) {
+		const line = rawLine.trim();
+		if (!line || line.startsWith("#")) {
+			continue;
+		}
+
+		const separatorIndex = line.indexOf("=");
+		if (separatorIndex <= 0) {
+			continue;
+		}
+
+		const key = line.slice(0, separatorIndex).trim();
+		let value = line.slice(separatorIndex + 1).trim();
+
+		if (
+			(value.startsWith('"') && value.endsWith('"')) ||
+			(value.startsWith("'") && value.endsWith("'"))
+		) {
+			value = value.slice(1, -1);
+		}
+
+		if (!(key in process.env)) {
+			process.env[key] = value;
+		}
+	}
 }
 
 async function applyPostgresMigrations() {

@@ -1,13 +1,13 @@
 # ho-starter-kit
 
+| [Demo](https://hsk.shanehoban.com) | [Docs](https://hsk.shanehoban.com/docs) |
+
 TanStack Start + Better Auth + Drizzle starter with:
 
 - default approval-based auth workflow (`member`, `admin`, `super-admin`)
 - SQLite or Postgres support (out of the box for SQLite, opt-in for Postgres)
 - reusable UI primitives and protected route patterns
 - migration scripts ready for local + Coolify deploys
-
-## | [Demo](https://hsk.shanehoban.com) | [Docs](https://hsk.shanehoban.com/docs) |
 
 ## Quick start
 
@@ -28,6 +28,7 @@ Required (all providers):
 
 - `BETTER_AUTH_SECRET` > Generate: openssl rand -base64 32
 - `BETTER_AUTH_URL` (for local: `http://localhost:3000`)
+- `BETTER_AUTH_TRUSTED_ORIGINS` (optional comma-separated absolute origins)
 - `DB_PROVIDER` (`sqlite` or `postgres`)
 
 SQLite:
@@ -36,7 +37,8 @@ SQLite:
 
 Postgres:
 
-- `DATABASE_URL=postgres://user:password@host:5432/db_name`
+- host runtime (pnpm dev): `DATABASE_URL=postgres://postgres:postgres@localhost:5432/ho_starter_kit`
+- app container runtime (docker compose app service): `DATABASE_URL=postgres://postgres:postgres@postgres:5432/ho_starter_kit`
 
 Optional:
 
@@ -63,8 +65,11 @@ SQLite (default):
 Postgres:
 
 - `DB_PROVIDER=postgres`
-- `DATABASE_URL=postgres://...`
+- `DATABASE_URL=postgres://postgres:postgres@localhost:5432/ho_starter_kit` (for host runtime)
 - run `pnpm db:generate:postgres` then `pnpm db:apply-migrations`
+- local postgres helper: `pnpm start:local:db`
+- stop local postgres: `pnpm stop:local:db`
+- run app in separate terminal: `pnpm dev`
 
 ## Useful commands
 
@@ -93,6 +98,12 @@ Run full provider matrix locally:
 pnpm release:audit
 ```
 
+Limit stored local audit artifacts:
+
+```bash
+RELEASE_AUDIT_MAX_ARTIFACTS=10 pnpm release:audit
+```
+
 Or run each provider:
 
 ```bash
@@ -111,6 +122,13 @@ Audit policy:
 - dependency audit enforcement fails on `moderate` and above
 - explicit temporary exceptions live in `security/audit-allowlist.json`
 - security guidance lives in `SECURITY.md`
+
+## Coolify build path
+
+- default: `Nixpacks` (`nixpacks.toml`)
+- optional: `Dockerfile`
+- sqlite on Coolify requires persistent storage mount at `/app/data`
+- postgres path uses `DB_PROVIDER=postgres` + `DATABASE_URL` (no sqlite volume required)
 
 ## Optional advanced patterns from hobnb
 

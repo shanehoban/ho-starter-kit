@@ -40,6 +40,8 @@ Expired exceptions fail the audit.
 
 - Set a high-entropy `BETTER_AUTH_SECRET`.
 - Set `BETTER_AUTH_URL` to the canonical public origin.
+- Add `BETTER_AUTH_TRUSTED_ORIGINS` only when additional origins are required.
+- Keep baseline HTTP security headers enabled via `nitro.config.ts`.
 - Keep `EMAIL_PROVIDER=null` until a real provider is configured.
 - Prefer HTTPS-only deployments with secure cookie settings at the edge/platform layer.
 
@@ -49,4 +51,3 @@ For security issues in downstream projects generated from this starter, coordina
 
 - consuming project repository
 - `ho-starter-kit` source in this monorepo
-

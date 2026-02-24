@@ -9,6 +9,16 @@ function uniqueEmail(prefix: string): string {
 	return `${prefix}-${Date.now()}-${random}@example.com`;
 }
 
+async function gotoAllowRedirectAbort(page: Page, path: string) {
+	try {
+		await page.goto(path, { waitUntil: "domcontentloaded" });
+	} catch (error) {
+		if (!(error instanceof Error) || !error.message.includes("ERR_ABORTED")) {
+			throw error;
+		}
+	}
+}
+
 async function registerUser(page: Page, name: string, email: string) {
 	const response = await page.context().request.post("/api/auth/sign-up/email", {
 		data: {
@@ -20,7 +30,7 @@ async function registerUser(page: Page, name: string, email: string) {
 	if (!response.ok()) {
 		throw new Error(`Registration request failed (${response.status()}): ${await response.text()}`);
 	}
-	await page.goto("/awaiting-approval");
+	await gotoAllowRedirectAbort(page, "/awaiting-approval");
 }
 
 async function approveUserInDatabase(email: string) {
@@ -56,7 +66,7 @@ test("enforces protected-route and approval flow", async ({ browser, page }) => 
 	await anonymousPage.goto("/app");
 	await expect(anonymousPage).toHaveURL(/\/login$/);
 
-	await anonymousPage.goto("/awaiting-approval");
+	await gotoAllowRedirectAbort(anonymousPage, "/awaiting-approval");
 	await expect(anonymousPage).toHaveURL(/\/$/);
 	await anonymous.close();
 

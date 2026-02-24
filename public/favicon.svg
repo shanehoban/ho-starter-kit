@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ho starter kit">
+  <defs>
+    <linearGradient id="hsk-bg" x1="6" y1="6" x2="58" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="0.55" stop-color="#1d4ed8"/>
+      <stop offset="1" stop-color="#0f766e"/>
+    </linearGradient>
+    <linearGradient id="hsk-roof" x1="18" y1="16" x2="46" y2="30" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#67e8f9"/>
+      <stop offset="1" stop-color="#86efac"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="url(#hsk-bg)"/>
+  <path d="M17 30.5 32 18l15 12.5" fill="none" stroke="url(#hsk-roof)" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+  <path d="M22 44V30m20 14V30m-20 7h20" fill="none" stroke="#f8fafc" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+  <path d="M28 44V35h8" fill="none" stroke="#f8fafc" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+</svg>

@@ -1,6 +1,12 @@
 # Deployment (Coolify + Nixpacks)
 
-This template deploys with `nixpacks.toml`.
+This template deploys with `nixpacks.toml` by default.
+
+## Build method in Coolify
+
+- Recommended: **Nixpacks** (auto-detects and uses `nixpacks.toml`)
+- Optional: **Dockerfile** (repository includes a production Dockerfile)
+- Docker Compose: use only when running app + Postgres as one stack
 
 ## Required env vars
 
@@ -18,6 +24,7 @@ For Postgres:
 
 - `DATABASE_URL=postgres://...`
 - If using Coolify Docker Compose, add a Postgres service and connect via internal host.
+- No SQLite persistent volume is needed when `DB_PROVIDER=postgres`.
 
 ## Startup flow
 

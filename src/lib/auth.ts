@@ -4,12 +4,53 @@ import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { count, eq, or } from "drizzle-orm";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
-import { DB_PROVIDER } from "@/lib/config";
+import { BETTER_AUTH_SECRET, DB_PROVIDER } from "@/lib/config";
+import { getAppBaseUrl } from "@/server/app-url";
 import { sendUserRegisteredEmailToAdmins } from "@/server/email/notification-emailer";
 
 const authProvider = DB_PROVIDER === "postgres" ? "pg" : "sqlite";
 
+function toOrigin(value: string): string | null {
+	try {
+		return new URL(value).origin;
+	} catch {
+		return null;
+	}
+}
+
+function resolveTrustedOrigins(): string[] {
+	const origins = new Set<string>();
+	const appOrigin = toOrigin(getAppBaseUrl());
+	if (appOrigin) {
+		origins.add(appOrigin);
+	}
+
+	const extraTrustedOrigins = (process.env.BETTER_AUTH_TRUSTED_ORIGINS ?? "")
+		.split(",")
+		.map((origin) => origin.trim())
+		.filter(Boolean);
+
+	for (const configuredOrigin of extraTrustedOrigins) {
+		const normalizedOrigin = toOrigin(configuredOrigin);
+		if (!normalizedOrigin) {
+			if (process.env.NODE_ENV === "production") {
+				throw new Error(
+					`Invalid BETTER_AUTH_TRUSTED_ORIGINS entry: "${configuredOrigin}". Expected absolute origin.`,
+				);
+			}
+			continue;
+		}
+		origins.add(normalizedOrigin);
+	}
+
+	return [...origins];
+}
+
+const trustedOrigins = resolveTrustedOrigins();
+
 export const auth = betterAuth({
+	secret: BETTER_AUTH_SECRET || undefined,
+	trustedOrigins,
 	database: drizzleAdapter(db as never, {
 		provider: authProvider,
 		schema: {

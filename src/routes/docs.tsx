@@ -140,6 +140,12 @@ const envVars = [
 		description: "Public app URL (local example: http://localhost:3000).",
 	},
 	{
+		name: "BETTER_AUTH_TRUSTED_ORIGINS",
+		required: "Optional",
+		description:
+			"Comma-separated absolute origins additionally trusted by Better Auth. BETTER_AUTH_URL origin is always trusted.",
+	},
+	{
 		name: "DB_PROVIDER",
 		required: "Required (all setups)",
 		description: "Database selector: sqlite (default) or postgres.",
@@ -194,6 +200,7 @@ const namingAndRouteRules = [
 	"Run pnpm naming:check to validate scripts, env vars, route names, and server file names.",
 	"Route tests in src/routes must be prefixed with '-' so route generation ignores them.",
 	"Use pnpm scripts only; avoid calling node scripts directly in normal contributor workflow.",
+	"Nitro loads nitro.config.ts automatically during build/runtime; no manual import in vite.config.ts is required.",
 ] as const;
 
 function DocsPage() {
@@ -435,15 +442,18 @@ pnpm dev`}
 					<CardContent className="space-y-3">
 						<pre className="overflow-x-auto rounded-md border border-border/70 bg-background/60 p-3 text-xs sm:text-sm">
 							{`cp .env.example .env
-# set BETTER_AUTH_SECRET, BETTER_AUTH_URL, DB_PROVIDER=postgres, DATABASE_URL=...
-docker compose -f docker-compose.postgres.yml up -d
+# set BETTER_AUTH_SECRET, BETTER_AUTH_URL, DB_PROVIDER=postgres
+# set DATABASE_URL=postgres://postgres:postgres@localhost:5432/ho_starter_kit
+# terminal 1: start postgres
+pnpm start:local:db
+# terminal 2:
 pnpm db:generate:postgres
 pnpm db:apply-migrations
 pnpm dev`}
 						</pre>
 						<p className="text-sm text-muted-foreground">
-							For CI/release parity in Postgres mode, the audit matrix uses
-							<code>docker-compose.audit-postgres.yml</code>.
+							Local Postgres mode expects Postgres running first (docker recommended), then run
+							<code>pnpm dev</code> in a separate terminal.
 						</p>
 					</CardContent>
 				</Card>
@@ -474,22 +484,49 @@ pnpm dev`}
 				</Card>
 			</section>
 
-			<section className="grid gap-4 md:grid-cols-2">
+			<section className="space-y-4">
 				<Card className="border-border/80 shadow-sm">
 					<CardHeader>
 						<CardTitle className="inline-flex items-center gap-2">
 							<Rocket className="h-4 w-4" />
 							Coolify and deployment
 						</CardTitle>
-						<CardDescription>Recommended provider-aware deployment command.</CardDescription>
+						<CardDescription>
+							Recommended build and runtime setup for Coolify (SQLite and Postgres paths).
+						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-3">
+						<p className="text-sm text-muted-foreground">
+							Build pack: use <code>Nixpacks</code> by default (repository includes{" "}
+							<code>nixpacks.toml</code>). Dockerfile is also supported. Docker Compose is only
+							needed when you want app + Postgres in one stack.
+						</p>
+						<div className="rounded-md border border-border/70 bg-background/60 p-3 text-sm">
+							<p className="font-medium text-foreground">SQLite on Coolify</p>
+							<p className="mt-1 text-muted-foreground">
+								Configure persistent storage mount at <code>/app/data</code> and set:
+								<code>DB_PROVIDER=sqlite</code>, <code>DB_PATH=/app/data/sqlite.db</code>,
+								<code>BACKUP_DIR=/app/data/backups</code>. Optional:
+								<code>UPLOAD_DIR=/app/data/uploads</code>.
+							</p>
+						</div>
+						<div className="rounded-md border border-border/70 bg-background/60 p-3 text-sm">
+							<p className="font-medium text-foreground">Postgres on Coolify</p>
+							<p className="mt-1 text-muted-foreground">
+								Use a managed Postgres service (Coolify DB service or external) and set:
+								<code>DB_PROVIDER=postgres</code>, <code>DATABASE_URL=postgres://...</code>. No
+								SQLite persistent volume is required in this mode.
+							</p>
+						</div>
 						<pre className="overflow-x-auto rounded-md border border-border/70 bg-background/60 p-3 text-xs sm:text-sm">
-							{`pnpm db:deploy-migrate`}
+							{`# startup / release command
+pnpm db:deploy-migrate
+# then run app
+node .output/server/index.mjs`}
 						</pre>
 						<p className="text-sm text-muted-foreground">
-							Keep DB provider variables in your service environment and call this during startup or
-							release hooks.
+							For CI/release parity in Postgres mode, release audit uses
+							<code>docker-compose.audit-postgres.yml</code>.
 						</p>
 					</CardContent>
 				</Card>
@@ -532,6 +569,10 @@ function ContributingTabContent() {
 						<CommandItem command="pnpm install" note="Install dependencies." />
 						<CommandItem command="pnpm dev" note="Run local app while developing." />
 						<CommandItem
+							command="pnpm start:local:db"
+							note="Start local Postgres when DB_PROVIDER=postgres."
+						/>
+						<CommandItem
 							command="pnpm verify"
 							note="Fast pre-commit check: format/lint/typecheck/unit tests."
 						/>
@@ -564,6 +605,10 @@ function ContributingTabContent() {
 						<CommandItem
 							command="pnpm release:audit:postgres"
 							note="Run only Postgres release path with docker-backed DB."
+						/>
+						<CommandItem
+							command="RELEASE_AUDIT_MAX_ARTIFACTS=10 pnpm release:check"
+							note="Optional cap for local artifacts/release-audit retention."
 						/>
 					</CardContent>
 				</Card>

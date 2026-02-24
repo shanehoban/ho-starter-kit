@@ -55,6 +55,7 @@ function runCommandIfFileExists(label, filePath, command, args) {
 assertFileExists("SECURITY.md");
 assertFileExists("security/audit-allowlist.json");
 assertFileExists("tests/e2e/route-security.spec.ts");
+assertFileExists("nitro.config.ts");
 
 assertContains(
 	"src/routes/awaiting-approval.tsx",
@@ -80,6 +81,46 @@ assertContains(
 	"src/routes/_authenticated.tsx",
 	/throw redirect\(\{ to: "\/awaiting-approval" \}\)/,
 	'must redirect unapproved users to "/awaiting-approval"',
+);
+assertContains(
+	"src/lib/auth.ts",
+	/trustedOrigins/,
+	'must explicitly configure Better Auth trusted origins',
+);
+assertContains(
+	"src/lib/auth.ts",
+	/secret:\s*BETTER_AUTH_SECRET/,
+	'must wire BETTER_AUTH_SECRET explicitly into Better Auth config',
+);
+assertContains(
+	"nitro.config.ts",
+	/"X-Frame-Options": "DENY"/,
+	'must set X-Frame-Options header',
+);
+assertContains(
+	"nitro.config.ts",
+	/"X-Content-Type-Options": "nosniff"/,
+	'must set X-Content-Type-Options header',
+);
+assertContains(
+	"nitro.config.ts",
+	/"Content-Security-Policy":/,
+	'must set a baseline Content-Security-Policy header',
+);
+assertContains(
+	"nitro.config.ts",
+	/themeBootScriptHash/,
+	'must pin inline theme boot script via CSP hash',
+);
+assertContains(
+	"nitro.config.ts",
+	/scriptSources/,
+	'must derive script-src from environment-aware scriptSources',
+);
+assertContains(
+	"nitro.config.ts",
+	/'self' '\$\{themeBootScriptHash\}'/,
+	'must quote the theme boot script hash source in production CSP',
 );
 assertCountAtLeast(
 	"src/server/users.ts",

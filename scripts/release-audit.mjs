@@ -28,7 +28,9 @@ function parseProviderArg() {
 	if (providerFlagIndex === -1) return "all";
 	const value = args[providerFlagIndex + 1];
 	if (!value || !supportedProviders.has(value)) {
-		throw new Error('Usage: node scripts/release-audit.mjs --provider <sqlite|postgres|all>');
+		throw new Error(
+			"Usage: node scripts/release-audit.mjs --provider <sqlite|postgres|all>",
+		);
 	}
 	return value;
 }
@@ -55,6 +57,31 @@ function ensureDir(dirPath) {
 	fs.mkdirSync(dirPath, { recursive: true });
 }
 
+function pruneAuditArtifacts(rootDir, maxArtifacts) {
+	ensureDir(rootDir);
+	if (!Number.isFinite(maxArtifacts) || maxArtifacts < 1) {
+		return;
+	}
+
+	const entries = fs
+		.readdirSync(rootDir, { withFileTypes: true })
+		.filter((entry) => entry.isDirectory())
+		.map((entry) => entry.name)
+		.sort();
+
+	const excess = entries.length - maxArtifacts;
+	if (excess <= 0) {
+		return;
+	}
+
+	for (const directoryName of entries.slice(0, excess)) {
+		fs.rmSync(path.join(rootDir, directoryName), {
+			recursive: true,
+			force: true,
+		});
+	}
+}
+
 function removeSqliteDb(dbPath) {
 	for (const suffix of ["", "-shm", "-wal"]) {
 		const candidate = `${dbPath}${suffix}`;
@@ -75,12 +102,42 @@ function buildAuditEnv(provider, overrides = {}) {
 		EMAIL_PROVIDER: "null",
 		BETTER_AUTH_URL: baseUrl,
 		BETTER_AUTH_SECRET:
-			process.env.BETTER_AUTH_SECRET ?? `release-audit-${crypto.randomBytes(24).toString("hex")}`,
+			process.env.BETTER_AUTH_SECRET ??
+			`release-audit-${crypto.randomBytes(24).toString("hex")}`,
 		DB_PROVIDER: provider,
 		...overrides,
 	};
 
 	return env;
+}
+
+function createE2ERuntime({
+	provider,
+	port,
+	dbOverrides,
+	hostOverride,
+	outputDir,
+}) {
+	const host = hostOverride ?? process.env.E2E_HOST ?? "127.0.0.1";
+	const baseUrl = `http://${host}:${port}`;
+	const env = buildAuditEnv(provider, {
+		...dbOverrides,
+		E2E_HOST: host,
+		E2E_PORT: String(port),
+		E2E_BASE_URL: baseUrl,
+		BETTER_AUTH_URL: baseUrl,
+		E2E_WEB_SERVER_COMMAND: `pnpm exec vite preview --host ${host} --port ${port}`,
+		PLAYWRIGHT_REUSE_SERVER: "0",
+	});
+
+	return {
+		env: {
+			...env,
+			PLAYWRIGHT_OUTPUT_DIR: path.join(outputDir, "playwright-output"),
+			PLAYWRIGHT_JSON_REPORT: path.join(outputDir, "playwright-report.json"),
+		},
+		baseEnv: env,
+	};
 }
 
 async function waitForPostgres(databaseUrl) {
@@ -108,8 +165,15 @@ async function main() {
 	const provider = parseProviderArg();
 	const providerList = provider === "all" ? ["sqlite", "postgres"] : [provider];
 	const skipE2E = process.env.RELEASE_AUDIT_SKIP_E2E === "1";
+	const maxArtifacts = Number(process.env.RELEASE_AUDIT_MAX_ARTIFACTS ?? "10");
 	const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-	const artifactsDir = path.join(process.cwd(), "artifacts", "release-audit", timestamp);
+	const artifactsRootDir = path.join(
+		process.cwd(),
+		"artifacts",
+		"release-audit",
+	);
+	pruneAuditArtifacts(artifactsRootDir, maxArtifacts);
+	const artifactsDir = path.join(artifactsRootDir, timestamp);
 	ensureDir(artifactsDir);
 
 	const report = {
@@ -121,9 +185,13 @@ async function main() {
 	};
 
 	let localPostgresStarted = false;
-	let postgresComposeFile = path.join(process.cwd(), "docker-compose.audit-postgres.yml");
+	let postgresComposeFile = path.join(
+		process.cwd(),
+		"docker-compose.audit-postgres.yml",
+	);
 	let postgresUrl =
-		process.env.DATABASE_URL ?? "postgres://postgres:postgres@127.0.0.1:55433/ho_starter_kit_audit";
+		process.env.DATABASE_URL ??
+		"postgres://postgres:postgres@127.0.0.1:55433/ho_starter_kit_audit";
 
 	try {
 		for (const step of [
@@ -133,7 +201,13 @@ async function main() {
 						[
 							"playwright chromium preflight",
 							"pnpm",
-							["exec", "node", "--input-type=module", "-e", playwrightPreflightScript],
+							[
+								"exec",
+								"node",
+								"--input-type=module",
+								"-e",
+								playwrightPreflightScript,
+							],
 						],
 					]),
 			["verify", "pnpm", ["verify"]],
@@ -150,8 +224,10 @@ async function main() {
 
 		for (const currentProvider of providerList) {
 			if (currentProvider === "sqlite") {
-				const sqliteDbPath = "/tmp/ho-starter-kit-release-audit.sqlite";
+				const sqliteDbPath = `/tmp/ho-starter-kit-release-audit-${timestamp}.sqlite`;
+				const sqliteE2eDbPath = `/tmp/ho-starter-kit-release-audit-e2e-${timestamp}.sqlite`;
 				removeSqliteDb(sqliteDbPath);
+				removeSqliteDb(sqliteE2eDbPath);
 				const env = buildAuditEnv("sqlite", { DB_PATH: sqliteDbPath });
 				const providerOutputDir = path.join(artifactsDir, "sqlite");
 				ensureDir(providerOutputDir);
@@ -162,15 +238,24 @@ async function main() {
 					["sqlite smoke", "pnpm", ["db:smoke"]],
 				];
 				if (!skipE2E) {
+					const sqliteE2EPort = Number(process.env.E2E_SQLITE_PORT ?? "3101");
+					const sqliteE2E = createE2ERuntime({
+						provider: "sqlite",
+						port: sqliteE2EPort,
+						dbOverrides: { DB_PATH: sqliteE2eDbPath },
+						outputDir: providerOutputDir,
+					});
+					sqliteSteps.push([
+						"sqlite e2e migrate",
+						"pnpm",
+						["db:apply-migrations"],
+						sqliteE2E.baseEnv,
+					]);
 					sqliteSteps.push([
 						"sqlite route/security e2e",
 						"pnpm",
 						["test:e2e", "--project=chromium"],
-						{
-							...env,
-							PLAYWRIGHT_OUTPUT_DIR: path.join(providerOutputDir, "playwright-output"),
-							PLAYWRIGHT_JSON_REPORT: path.join(providerOutputDir, "playwright-report.json"),
-						},
+						sqliteE2E.env,
 					]);
 				} else {
 					report.steps.push({
@@ -184,9 +269,12 @@ async function main() {
 
 				for (const step of sqliteSteps) {
 					const [name, command, args, customEnv] = step;
-					const result = runCommand(name, command, args, { env: customEnv ?? env });
+					const result = runCommand(name, command, args, {
+						env: customEnv ?? env,
+					});
 					report.steps.push(result);
-					if (result.status === "failed") throw new Error(`Step failed: ${name}`);
+					if (result.status === "failed")
+						throw new Error(`Step failed: ${name}`);
 				}
 			}
 
@@ -201,7 +289,8 @@ async function main() {
 						"-d",
 					]);
 					report.steps.push(up);
-					if (up.status === "failed") throw new Error("Step failed: postgres compose up");
+					if (up.status === "failed")
+						throw new Error("Step failed: postgres compose up");
 					localPostgresStarted = true;
 				}
 
@@ -224,15 +313,20 @@ async function main() {
 					["postgres smoke", "pnpm", ["db:smoke"]],
 				];
 				if (!skipE2E) {
+					const postgresE2EPort = Number(
+						process.env.E2E_POSTGRES_PORT ?? "3102",
+					);
+					const postgresE2E = createE2ERuntime({
+						provider: "postgres",
+						port: postgresE2EPort,
+						dbOverrides: { DATABASE_URL: postgresUrl },
+						outputDir: providerOutputDir,
+					});
 					postgresSteps.push([
 						"postgres route/security e2e",
 						"pnpm",
 						["test:e2e", "--project=chromium"],
-						{
-							...env,
-							PLAYWRIGHT_OUTPUT_DIR: path.join(providerOutputDir, "playwright-output"),
-							PLAYWRIGHT_JSON_REPORT: path.join(providerOutputDir, "playwright-report.json"),
-						},
+						postgresE2E.env,
 					]);
 				} else {
 					report.steps.push({
@@ -246,9 +340,12 @@ async function main() {
 
 				for (const step of postgresSteps) {
 					const [name, command, args, customEnv] = step;
-					const result = runCommand(name, command, args, { env: customEnv ?? env });
+					const result = runCommand(name, command, args, {
+						env: customEnv ?? env,
+					});
 					report.steps.push(result);
-					if (result.status === "failed") throw new Error(`Step failed: ${name}`);
+					if (result.status === "failed")
+						throw new Error(`Step failed: ${name}`);
 				}
 			}
 		}

@@ -13,7 +13,13 @@ import type { ReactNode } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { useSession } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/docs")({
@@ -24,7 +30,8 @@ const stackDocs = [
 	{
 		name: "TanStack Start",
 		href: "https://tanstack.com/start/latest",
-		description: "Full-stack React framework used for routing, SSR, and server functions.",
+		description:
+			"Full-stack React framework used for routing, SSR, and server functions.",
 	},
 	{
 		name: "TanStack Router",
@@ -49,7 +56,8 @@ const stackDocs = [
 	{
 		name: "PostgreSQL",
 		href: "https://www.postgresql.org/docs/",
-		description: "Production database option for managed DB and horizontal growth.",
+		description:
+			"Production database option for managed DB and horizontal growth.",
 	},
 	{
 		name: "SQLite",
@@ -107,7 +115,8 @@ const envVars = [
 	{
 		name: "DATABASE_URL",
 		required: "Required when DB_PROVIDER=postgres",
-		description: "Postgres connection string used by Drizzle and runtime DB client.",
+		description:
+			"Postgres connection string used by Drizzle and runtime DB client.",
 	},
 	{
 		name: "EMAIL_PROVIDER",
@@ -164,8 +173,8 @@ function DocsPage() {
 							ho-starter-kit docs
 						</h1>
 						<p className="max-w-3xl text-sm text-muted-foreground sm:text-base">
-							Everything needed to bootstrap, configure, and operate this starter kit in local
-							development and production.
+							Everything needed to bootstrap, configure, and operate this
+							starter kit in local development and production.
 						</p>
 					</div>
 
@@ -215,17 +224,22 @@ pnpm dev`}
 							<ShieldCheck className="h-4 w-4" />
 							Auth model
 						</CardTitle>
-						<CardDescription>Approval-first onboarding with admin roles.</CardDescription>
+						<CardDescription>
+							Approval-first onboarding with admin roles.
+						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-2">
 						<AuthRuleItem>
-							First registered user becomes <code>super-admin</code> and is auto-approved.
+							First registered user becomes <code>super-admin</code> and is
+							auto-approved.
 						</AuthRuleItem>
 						<AuthRuleItem>
-							All later registrations are <code>member</code> and require admin approval.
+							All later registrations are <code>member</code> and require admin
+							approval.
 						</AuthRuleItem>
 						<AuthRuleItem>
-							Authenticated users get an app area with role-gated admin management tools.
+							Authenticated users get an app area with role-gated admin
+							management tools.
 						</AuthRuleItem>
 						<AuthRuleItem>
 							Password reset and forced password-change flows are included.
@@ -266,7 +280,9 @@ pnpm dev`}
 							<Database className="h-4 w-4" />
 							SQLite (default)
 						</CardTitle>
-						<CardDescription>Best local default and simplest deployment path.</CardDescription>
+						<CardDescription>
+							Best local default and simplest deployment path.
+						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-3">
 						<pre className="overflow-x-auto rounded-md border border-border/70 bg-background/60 p-3 text-xs sm:text-sm">
@@ -277,7 +293,8 @@ pnpm db:generate:sqlite
 pnpm db:apply-migrations`}
 						</pre>
 						<p className="text-sm text-muted-foreground">
-							For safe rollout on existing SQLite data, use `pnpm db:safe-migrate`.
+							For safe rollout on existing SQLite data, use `pnpm
+							db:safe-migrate`.
 						</p>
 					</CardContent>
 				</Card>
@@ -288,7 +305,9 @@ pnpm db:apply-migrations`}
 							<Database className="h-4 w-4" />
 							Postgres
 						</CardTitle>
-						<CardDescription>Recommended for managed production databases.</CardDescription>
+						<CardDescription>
+							Recommended for managed production databases.
+						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-3">
 						<pre className="overflow-x-auto rounded-md border border-border/70 bg-background/60 p-3 text-xs sm:text-sm">
@@ -299,7 +318,8 @@ pnpm db:generate:postgres
 pnpm db:apply-migrations`}
 						</pre>
 						<p className="text-sm text-muted-foreground">
-							The runtime `db:deploy-migrate` script auto-selects safe behavior by provider.
+							The runtime `db:deploy-migrate` script auto-selects safe behavior
+							by provider.
 						</p>
 					</CardContent>
 				</Card>
@@ -313,13 +333,15 @@ pnpm db:apply-migrations`}
 							Email and audit trails
 						</CardTitle>
 						<CardDescription>
-							All outbound emails are logged to the `email_logs` table by default.
+							All outbound emails are logged to the `email_logs` table by
+							default.
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-3">
 						<p className="text-sm text-muted-foreground">
-							Use `EMAIL_PROVIDER=null` for local/dev. For production email delivery, set
-							`EMAIL_PROVIDER=resend`, `RESEND_API_KEY`, and `EMAIL_FROM`.
+							Use `EMAIL_PROVIDER=null` for local/dev. For production email
+							delivery, set `EMAIL_PROVIDER=resend`, `RESEND_API_KEY`, and
+							`EMAIL_FROM`.
 						</p>
 						<pre className="overflow-x-auto rounded-md border border-border/70 bg-background/60 p-3 text-xs sm:text-sm">
 							{`-- inspect recent email logs
@@ -339,10 +361,15 @@ LIMIT 50;`}
 							<Rocket className="h-4 w-4" />
 							Ops and deployment commands
 						</CardTitle>
-						<CardDescription>Use these scripts to keep DB changes predictable.</CardDescription>
+						<CardDescription>
+							Use these scripts to keep DB changes predictable.
+						</CardDescription>
 					</CardHeader>
 					<CardContent className="grid gap-3 sm:grid-cols-2">
-						<CommandItem command="pnpm verify" note="Biome + TypeScript + tests in one command." />
+						<CommandItem
+							command="pnpm verify"
+							note="Biome + TypeScript + tests in one command."
+						/>
 						<CommandItem
 							command="pnpm db:check"
 							note="DB integrity checks (users/accounts/super-admin invariants)."
@@ -351,9 +378,18 @@ LIMIT 50;`}
 							command="pnpm db:safe-migrate"
 							note="SQLite integrity-check + backup + migration + post-check."
 						/>
-						<CommandItem command="pnpm db:deploy-migrate" note="Deployment migration entrypoint." />
-						<CommandItem command="pnpm db:smoke" note="Idempotent migration smoke test." />
-						<CommandItem command="pnpm email:preview" note="Preview email templates locally." />
+						<CommandItem
+							command="pnpm db:deploy-migrate"
+							note="Deployment migration entrypoint."
+						/>
+						<CommandItem
+							command="pnpm db:smoke"
+							note="Idempotent migration smoke test."
+						/>
+						<CommandItem
+							command="pnpm email:preview"
+							note="Preview email templates locally."
+						/>
 					</CardContent>
 				</Card>
 			</section>
@@ -362,15 +398,18 @@ LIMIT 50;`}
 				<Card className="border-border/80 shadow-sm">
 					<CardHeader>
 						<CardTitle>Docker and Coolify (Postgres path)</CardTitle>
-						<CardDescription>Use the bundled compose file for local parity.</CardDescription>
+						<CardDescription>
+							Use the bundled compose file for local parity.
+						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-3">
 						<pre className="overflow-x-auto rounded-md border border-border/70 bg-background/60 p-3 text-xs sm:text-sm">
 							{`docker compose -f docker-compose.postgres.yml up --build`}
 						</pre>
 						<p className="text-sm text-muted-foreground">
-							For Coolify, keep `DB_PROVIDER` and provider-specific connection values in service
-							environment variables, then run `pnpm db:deploy-migrate` during start/release.
+							For Coolify, keep `DB_PROVIDER` and provider-specific connection
+							values in service environment variables, then run `pnpm
+							db:deploy-migrate` during start/release.
 						</p>
 					</CardContent>
 				</Card>
@@ -400,7 +439,9 @@ LIMIT 50;`}
 									<p className="font-medium">{doc.name}</p>
 									<ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-foreground group-hover:text-foreground" />
 								</div>
-								<p className="mt-1 text-sm text-muted-foreground">{doc.description}</p>
+								<p className="mt-1 text-sm text-muted-foreground">
+									{doc.description}
+								</p>
 							</a>
 						))}
 					</CardContent>

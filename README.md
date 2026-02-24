@@ -78,5 +78,3 @@ Not enabled by default, but recommended when needed:
 - migration history recovery guard in `scripts/apply-migrations.js` (SQLite path)
 - structured audit-log diffs for admin actions
 - hardened media upload pipeline (mime + signature checks + rollback)
-
-test

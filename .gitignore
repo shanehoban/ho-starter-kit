@@ -16,3 +16,6 @@ sqlite.db-shm
 sqlite.db-wal
 uploads/
 coverage/
+artifacts/
+playwright-report/
+test-results/

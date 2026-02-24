@@ -1,0 +1,13 @@
+{
+  "severityThreshold": "moderate",
+  "allowlist": [
+    {
+      "id": 1102341,
+      "module": "esbuild",
+      "pathsContain": ["drizzle-kit>@esbuild-kit/esm-loader>@esbuild-kit/core-utils>esbuild"],
+      "reason": "Transitive dependency in drizzle-kit migration tooling; no direct upgrade path in current drizzle-kit line.",
+      "expiresOn": "2026-06-30"
+    }
+  ]
+}
+

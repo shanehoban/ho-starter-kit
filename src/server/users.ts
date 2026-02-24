@@ -11,6 +11,7 @@ import { checkEmailRateLimit } from "@/server/email/rate-limiter";
 import { createVerificationToken, verifyToken } from "@/server/email/verification-tokens";
 import { canAdminSendResetLink } from "@/server/password-reset-policy";
 import { checkPublicRateLimit } from "@/server/rate-limiter";
+import { assertSameOriginRequest } from "@/server/request-security";
 import { roleSchema } from "@/server/validators";
 
 const userIdSchema = z.object({
@@ -135,6 +136,7 @@ export const getAdminUser = createServerFn({ method: "GET" })
 export const approveUser = createServerFn({ method: "POST" })
 	.inputValidator((data) => userIdSchema.parse(data))
 	.handler(async ({ data }) => {
+		assertSameOriginRequest();
 		const admin = await getAuthUser();
 		requireAdmin(admin);
 
@@ -161,6 +163,7 @@ export const approveUser = createServerFn({ method: "POST" })
 export const updateUser = createServerFn({ method: "POST" })
 	.inputValidator((data) => updateUserSchema.parse(data))
 	.handler(async ({ data }) => {
+		assertSameOriginRequest();
 		const admin = await getAuthUser();
 		requireAdmin(admin);
 
@@ -218,6 +221,7 @@ export const updateUser = createServerFn({ method: "POST" })
 export const adminResetPassword = createServerFn({ method: "POST" })
 	.inputValidator((data) => adminResetPasswordSchema.parse(data))
 	.handler(async ({ data }) => {
+		assertSameOriginRequest();
 		const admin = await getAuthUser();
 		requireAdmin(admin);
 
@@ -263,6 +267,7 @@ export const adminResetPassword = createServerFn({ method: "POST" })
 export const updateProfile = createServerFn({ method: "POST" })
 	.inputValidator((data) => updateProfileSchema.parse(data))
 	.handler(async ({ data }) => {
+		assertSameOriginRequest();
 		const user = await getAuthUser();
 
 		await db
@@ -281,6 +286,7 @@ export const updateProfile = createServerFn({ method: "POST" })
 export const changeMyPassword = createServerFn({ method: "POST" })
 	.inputValidator((data) => changePasswordSchema.parse(data))
 	.handler(async ({ data }) => {
+		assertSameOriginRequest();
 		const user = await getAuthUser();
 
 		const [credentialAccount] = await db
@@ -308,6 +314,7 @@ export const changeMyPassword = createServerFn({ method: "POST" })
 export const requestPasswordReset = createServerFn({ method: "POST" })
 	.inputValidator((data) => requestPasswordResetSchema.parse(data))
 	.handler(async ({ data }) => {
+		assertSameOriginRequest();
 		const allowed = await checkPublicRateLimit("requestPasswordReset", 6, 15);
 		if (!allowed) {
 			return { success: true };
@@ -347,6 +354,7 @@ export const requestPasswordReset = createServerFn({ method: "POST" })
 export const sendPasswordResetLinkAsAdmin = createServerFn({ method: "POST" })
 	.inputValidator((data) => userIdSchema.parse(data))
 	.handler(async ({ data }) => {
+		assertSameOriginRequest();
 		const admin = await getAuthUser();
 		requireAdmin(admin);
 
@@ -398,6 +406,7 @@ export const sendPasswordResetLinkAsAdmin = createServerFn({ method: "POST" })
 export const resetPassword = createServerFn({ method: "POST" })
 	.inputValidator((data) => resetPasswordSchema.parse(data))
 	.handler(async ({ data }) => {
+		assertSameOriginRequest();
 		const isValid = await verifyToken(data.email, data.token);
 		if (!isValid) {
 			throw new Error("Invalid or expired reset link");

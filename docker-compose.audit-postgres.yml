@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ho_starter_kit_audit
+    ports:
+      - "55433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ho_starter_kit_audit"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - ho_starter_kit_audit_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  ho_starter_kit_audit_postgres_data:

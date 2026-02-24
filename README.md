@@ -71,6 +71,45 @@ Postgres:
 - `pnpm db:deploy-migrate`
 - `pnpm db:smoke`
 
+## Release audit (v0.0.1 gate)
+
+Install Playwright once:
+
+```bash
+pnpm exec playwright install chromium
+```
+
+If your machine is missing browser libs:
+
+```bash
+sudo pnpm exec playwright install --with-deps chromium
+```
+
+Run full provider matrix locally:
+
+```bash
+pnpm release:audit
+```
+
+Or run each provider:
+
+```bash
+pnpm release:audit:sqlite
+pnpm release:audit:postgres
+```
+
+If you need to verify DB/migrations only (skip E2E temporarily):
+
+```bash
+RELEASE_AUDIT_SKIP_E2E=1 pnpm release:audit
+```
+
+Audit policy:
+
+- dependency audit enforcement fails on `moderate` and above
+- explicit temporary exceptions live in `security/audit-allowlist.json`
+- security guidance lives in `SECURITY.md`
+
 ## Optional advanced patterns from hobnb
 
 Not enabled by default, but recommended when needed:

@@ -3,7 +3,7 @@
 TanStack Start + Better Auth + Drizzle starter with:
 
 - default approval-based auth workflow (`member`, `admin`, `super-admin`)
-- SQLite or Postgres support
+- SQLite or Postgres support (out of the box for SQLite, opt-in for Postgres)
 - reusable UI primitives and protected route patterns
 - migration scripts ready for local + Coolify deploys
 

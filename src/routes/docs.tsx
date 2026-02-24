@@ -9,6 +9,7 @@ import {
 	ShieldCheck,
 	Terminal,
 } from "lucide-react";
+import type { ReactNode } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -216,11 +217,19 @@ pnpm dev`}
 						</CardTitle>
 						<CardDescription>Approval-first onboarding with admin roles.</CardDescription>
 					</CardHeader>
-					<CardContent className="space-y-2 text-sm text-muted-foreground">
-						<p>First registered user becomes `super-admin` and is auto-approved.</p>
-						<p>All later registrations are `member` and require admin approval.</p>
-						<p>Authenticated users get an app area, with role-gated admin management tools.</p>
-						<p>Password reset and forced password-change flows are included.</p>
+					<CardContent className="space-y-2">
+						<AuthRuleItem>
+							First registered user becomes <code>super-admin</code> and is auto-approved.
+						</AuthRuleItem>
+						<AuthRuleItem>
+							All later registrations are <code>member</code> and require admin approval.
+						</AuthRuleItem>
+						<AuthRuleItem>
+							Authenticated users get an app area with role-gated admin management tools.
+						</AuthRuleItem>
+						<AuthRuleItem>
+							Password reset and forced password-change flows are included.
+						</AuthRuleItem>
 					</CardContent>
 				</Card>
 			</section>
@@ -409,6 +418,17 @@ function CommandItem({ command, note }: { command: string; note: string }) {
 				<code className="font-semibold">{command}</code>
 			</div>
 			<p className="text-sm text-muted-foreground">{note}</p>
+		</div>
+	);
+}
+
+function AuthRuleItem({ children }: { children: ReactNode }) {
+	return (
+		<div className="rounded-md border border-border/70 bg-background/60 p-3 text-sm text-muted-foreground">
+			<div className="inline-flex items-start gap-2">
+				<CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+				<span>{children}</span>
+			</div>
 		</div>
 	);
 }

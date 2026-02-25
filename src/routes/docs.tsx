@@ -596,6 +596,11 @@ DATABASE_URL=postgres://postgres:change-this@postgres:5432/ho_starter_kit`}
 								If you change <code>POSTGRES_USER</code>, <code>POSTGRES_PASSWORD</code>, or{" "}
 								<code>POSTGRES_DB</code>, update <code>DATABASE_URL</code> to match.
 							</p>
+							<p className="mt-2 text-muted-foreground">
+								In Coolify, set <code>NODE_ENV</code> as runtime-only. Avoid build-time{" "}
+								<code>NODE_ENV=production</code> because Node package managers may skip
+								build-required devDependencies.
+							</p>
 						</div>
 						<pre className="overflow-x-auto rounded-md border border-border/70 bg-background/60 p-3 text-xs sm:text-sm">
 							{`# startup / release command

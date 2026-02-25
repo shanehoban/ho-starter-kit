@@ -134,6 +134,7 @@ Audit policy:
 - Docker Compose stack mode can run app + Postgres together; in that mode use host `postgres` in `DATABASE_URL`
 - for Compose stack mode on Coolify, select Docker Compose and set file/path to `docker-compose.postgres.yml`
 - compose file supports `${VAR}` injection from Coolify stack envs (set `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, Postgres vars, and `DATABASE_URL`)
+- set `NODE_ENV` as runtime-only in Coolify (do not expose it at build-time as `production`)
 
 ## Optional advanced patterns from hobnb
 

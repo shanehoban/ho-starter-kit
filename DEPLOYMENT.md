@@ -62,6 +62,8 @@ If you deploy with Docker Compose and include both `app` and `postgres` services
 
 `docker-compose.postgres.yml` uses `${VAR}` substitution. Set variables once in Coolify stack environment.
 
+`NODE_ENV` should be runtime-only in Coolify. Do not mark it build-time (`production` build-time can skip required devDependencies in Node package managers).
+
 Required:
 
 - `BETTER_AUTH_SECRET=...`

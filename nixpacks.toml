@@ -5,7 +5,7 @@ nixPkgs = ["nodejs_20", "pnpm"]
 cmds = ["pnpm install --frozen-lockfile --prod=false --child-concurrency=2"]
 
 [phases.build]
-cmds = ["NODE_OPTIONS=--max-old-space-size=1024 pnpm build", "pnpm prune --prod"]
+cmds = ["NODE_OPTIONS=--max-old-space-size=${NODE_BUILD_MEMORY_MB:-1280} pnpm build", "pnpm prune --prod"]
 
 [start]
 cmd = "pnpm db:deploy-migrate && node .output/server/index.mjs"
@@ -13,3 +13,4 @@ cmd = "pnpm db:deploy-migrate && node .output/server/index.mjs"
 [variables]
 NODE_ENV = "production"
 NIXPACKS_NODE_VERSION = "20.20.0"
+NODE_BUILD_MEMORY_MB = "1280"

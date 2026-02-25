@@ -3,7 +3,8 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN corepack enable && pnpm install --frozen-lockfile --prod=false
 COPY . .
-RUN NODE_OPTIONS=--max-old-space-size=1024 pnpm build && pnpm prune --prod
+ARG NODE_BUILD_MEMORY_MB=1280
+RUN NODE_OPTIONS=--max-old-space-size=${NODE_BUILD_MEMORY_MB} pnpm build && pnpm prune --prod
 
 FROM node:20-alpine AS runtime
 WORKDIR /app

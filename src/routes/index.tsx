@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, CheckCircle2, Database, Github, Rocket, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Database, Github, Rocket, ShieldCheck } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -90,7 +90,6 @@ function HomePage() {
 								<Button asChild>
 									<Link to="/app" className="inline-flex items-center gap-2">
 										Open app
-										<ArrowRight className="h-4 w-4" />
 									</Link>
 								</Button>
 								<Button variant="outline" asChild>

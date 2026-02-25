@@ -146,6 +146,12 @@ const envVars = [
 			"Comma-separated absolute origins additionally trusted by Better Auth. BETTER_AUTH_URL origin is always trusted.",
 	},
 	{
+		name: "CSP_SCRIPT_NONCE",
+		required: "Optional (recommended in production)",
+		description:
+			"Nonce string used by CSP for inline SSR scripts (theme boot + TanStack hydration scripts).",
+	},
+	{
 		name: "DB_PROVIDER",
 		required: "Required (all setups)",
 		description: "Database selector: sqlite (default) or postgres.",
@@ -584,6 +590,7 @@ DATABASE_URL=postgres://postgres:postgres@postgres:5432/ho_starter_kit`}
 								{`# required
 BETTER_AUTH_SECRET=...
 BETTER_AUTH_URL=https://your-app.example
+CSP_SCRIPT_NONCE=...
 DB_PROVIDER=postgres
 
 # recommended explicit Postgres values

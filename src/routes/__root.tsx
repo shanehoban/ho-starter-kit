@@ -4,6 +4,7 @@ import {
 	HeadContent,
 	Link,
 	Outlet,
+	ScriptOnce,
 	Scripts,
 } from "@tanstack/react-router";
 import { AlertTriangle, BookOpenText, Compass, Home, RotateCcw } from "lucide-react";
@@ -37,7 +38,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<head>
-				<script>{getThemeBootScript()}</script>
+				<ScriptOnce>{getThemeBootScript()}</ScriptOnce>
 				<HeadContent />
 			</head>
 			<body className="min-h-screen bg-background text-foreground">

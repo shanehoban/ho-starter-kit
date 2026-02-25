@@ -19,6 +19,7 @@ This template deploys with `nixpacks.toml` by default.
 - `DB_PROVIDER=sqlite` or `DB_PROVIDER=postgres`
 - `BETTER_AUTH_SECRET=<strong random secret>` > Generate: openssl rand -base64 32
 - `BETTER_AUTH_URL=https://your-domain.example`
+- `CSP_SCRIPT_NONCE=<random nonce>` > Generate: openssl rand -base64 24
 
 For SQLite:
 

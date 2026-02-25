@@ -56,6 +56,7 @@ assertFileExists("SECURITY.md");
 assertFileExists("security/audit-allowlist.json");
 assertFileExists("tests/e2e/route-security.spec.ts");
 assertFileExists("nitro.config.ts");
+assertFileExists("src/lib/csp.ts");
 
 assertContains(
 	"src/routes/awaiting-approval.tsx",
@@ -109,18 +110,23 @@ assertContains(
 );
 assertContains(
 	"nitro.config.ts",
-	/themeBootScriptHash/,
-	'must pin inline theme boot script via CSP hash',
+	/buildContentSecurityPolicy/,
+	'must build CSP through shared CSP policy helper',
 );
 assertContains(
-	"nitro.config.ts",
-	/scriptSources/,
-	'must derive script-src from environment-aware scriptSources',
+	"src/lib/csp.ts",
+	/CSP_SCRIPT_NONCE/,
+	'must define CSP script nonce used for SSR script tags',
 );
 assertContains(
-	"nitro.config.ts",
-	/'self' '\$\{themeBootScriptHash\}'/,
-	'must quote the theme boot script hash source in production CSP',
+	"src/router.tsx",
+	/nonce:\s*CSP_SCRIPT_NONCE/,
+	'must wire router SSR nonce so TanStack SSR scripts satisfy CSP',
+);
+assertContains(
+	"src/routes/__root.tsx",
+	/<ScriptOnce>/,
+	'must render theme boot script via ScriptOnce so nonce is attached',
 );
 assertCountAtLeast(
 	"src/server/users.ts",

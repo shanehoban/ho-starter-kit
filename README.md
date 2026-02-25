@@ -29,6 +29,7 @@ Required (all providers):
 - `BETTER_AUTH_SECRET` > Generate: openssl rand -base64 32
 - `BETTER_AUTH_URL` (for local: `http://localhost:3000`)
 - `BETTER_AUTH_TRUSTED_ORIGINS` (optional comma-separated absolute origins)
+- `CSP_SCRIPT_NONCE` (optional, recommended for production CSP nonce)
 - `DB_PROVIDER` (`sqlite` or `postgres`)
 
 SQLite:

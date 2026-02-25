@@ -1,11 +1,7 @@
 import { defineNitroConfig } from "nitro/config";
+import { buildContentSecurityPolicy } from "./src/lib/csp";
 
-const themeBootScriptHash = "sha256-/Smwf77htGJwF87aGc1D0SeMzNvJV05oUcLsH3l/BoI=";
 const isProduction = process.env.NODE_ENV === "production";
-const scriptSources = isProduction
-	? `'self' '${themeBootScriptHash}'`
-	: `'self' 'unsafe-inline' 'unsafe-eval' blob:`;
-const connectSources = isProduction ? `'self'` : `'self' ws: wss: http: https:`;
 
 const baseSecurityHeaders: Record<string, string> = {
 	"X-Frame-Options": "DENY",
@@ -14,8 +10,7 @@ const baseSecurityHeaders: Record<string, string> = {
 	"Permissions-Policy": "camera=(), microphone=(), geolocation=()",
 	"Cross-Origin-Opener-Policy": "same-origin",
 	"Cross-Origin-Resource-Policy": "same-origin",
-	"Content-Security-Policy":
-		`default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; img-src 'self' data: blob:; script-src ${scriptSources}; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src ${connectSources}`,
+	"Content-Security-Policy": buildContentSecurityPolicy({ isProduction }),
 };
 
 if (isProduction) {

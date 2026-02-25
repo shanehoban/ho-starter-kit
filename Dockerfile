@@ -8,6 +8,7 @@ RUN pnpm build && pnpm prune --prod
 FROM node:20-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
+RUN apk add --no-cache bash && corepack enable && corepack prepare pnpm@9.1.0 --activate
 COPY --from=build /app .
 EXPOSE 3000
 CMD ["sh", "-lc", "pnpm db:deploy-migrate && node .output/server/index.mjs"]

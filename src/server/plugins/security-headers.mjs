@@ -15,7 +15,7 @@ if (isProduction) {
 	baseSecurityHeaders["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload";
 }
 
-export default defineNitroPlugin((nitroApp) => {
+export default (nitroApp) => {
 	nitroApp.hooks.hook("request", (event) => {
 		for (const [headerName, headerValue] of Object.entries(baseSecurityHeaders)) {
 			event.node.res.setHeader(headerName, headerValue);
@@ -26,4 +26,4 @@ export default defineNitroPlugin((nitroApp) => {
 			buildContentSecurityPolicy({ isProduction }),
 		);
 	});
-});
+};

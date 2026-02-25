@@ -1,6 +1,8 @@
 # ho-starter-kit
 
-| [Demo](https://hsk.shanehoban.com) | [Docs](https://hsk.shanehoban.com/docs) |
+[![CI](https://github.com/shanehoban/ho-starter-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/shanehoban/ho-starter-kit/actions/workflows/ci.yml)
+
+[Demo](https://hsk.shanehoban.com) | [Docs](https://hsk.shanehoban.com/docs)
 
 TanStack Start + Better Auth + Drizzle starter with:
 

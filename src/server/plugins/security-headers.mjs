@@ -32,8 +32,8 @@ export default (nitroApp) => {
 		const isHtml = typeof contentType === "string" && contentType.includes("text/html");
 
 		if (isHtml && typeof response.body === "string") {
-			response.body = response.body.replaceAll(
-				"<script></script>",
+			response.body = response.body.replace(
+				/<script>\s*<\/script>/g,
 				`<script nonce="${CSP_SCRIPT_NONCE}"></script>`,
 			);
 		}

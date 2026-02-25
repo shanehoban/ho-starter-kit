@@ -1,4 +1,4 @@
-import { buildContentSecurityPolicy } from "../../lib/csp";
+import { buildContentSecurityPolicy, CSP_SCRIPT_NONCE } from "../../lib/csp";
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -25,5 +25,17 @@ export default (nitroApp) => {
 			"Content-Security-Policy",
 			buildContentSecurityPolicy({ isProduction }),
 		);
+	});
+
+	nitroApp.hooks.hook("render:response", (response, { event }) => {
+		const contentType = event.node.res.getHeader("content-type");
+		const isHtml = typeof contentType === "string" && contentType.includes("text/html");
+
+		if (isHtml && typeof response.body === "string") {
+			response.body = response.body.replaceAll(
+				"<script></script>",
+				`<script nonce="${CSP_SCRIPT_NONCE}"></script>`,
+			);
+		}
 	});
 };

@@ -35,7 +35,7 @@ function AwaitingApprovalPage() {
 				</CardHeader>
 				<CardContent>
 					<Button variant="outline" asChild>
-						<Link to="/">Back home</Link>
+						<Link to="/">Home</Link>
 					</Button>
 				</CardContent>
 			</Card>

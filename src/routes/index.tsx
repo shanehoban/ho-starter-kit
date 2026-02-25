@@ -94,23 +94,13 @@ function HomePage() {
 									</Link>
 								</Button>
 								<Button variant="outline" asChild>
-									<Link to="/docs">Read docs</Link>
+									<Link to="/docs">Read the docs</Link>
 								</Button>
 							</>
 						) : (
-							<>
-								<Button asChild>
-									<Link to="/register" className="inline-flex items-center gap-2">
-										Create account
-									</Link>
-								</Button>
-								<Button variant="outline" asChild>
-									<Link to="/login">Log in</Link>
-								</Button>
-								<Button variant="outline" asChild>
-									<Link to="/docs">Read docs</Link>
-								</Button>
-							</>
+							<Button asChild>
+								<Link to="/docs">Read the docs</Link>
+							</Button>
 						)}
 					</div>
 				</div>

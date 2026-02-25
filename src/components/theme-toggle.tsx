@@ -1,6 +1,7 @@
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { applyTheme, persistTheme, resolveTheme, type Theme } from "@/lib/theme";
 
 type ThemeToggleProps = {
@@ -28,16 +29,22 @@ export function ThemeToggle({ className, variant = "ghost", size = "icon" }: The
 	};
 
 	return (
-		<Button
-			type="button"
-			variant={variant}
-			size={size}
-			className={className}
-			aria-label={ready ? `Switch to ${theme === "dark" ? "light" : "dark"} mode` : "Toggle theme"}
-			title={ready ? `Switch to ${theme === "dark" ? "light" : "dark"} mode` : "Toggle theme"}
-			onClick={handleToggle}
-		>
-			{theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-		</Button>
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<Button
+					type="button"
+					variant={variant}
+					size={size}
+					className={className}
+					aria-label={
+						ready ? `Switch to ${theme === "dark" ? "light" : "dark"} mode` : "Toggle theme"
+					}
+					onClick={handleToggle}
+				>
+					{theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+				</Button>
+			</TooltipTrigger>
+			<TooltipContent>Toggle theme</TooltipContent>
+		</Tooltip>
 	);
 }

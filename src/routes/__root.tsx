@@ -11,6 +11,7 @@ import { AlertTriangle, BookOpenText, Compass, Home, RotateCcw } from "lucide-re
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { getThemeBootScript } from "@/lib/theme";
 import appCss from "../styles.css?url";
 
@@ -51,12 +52,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
 	return (
-		<div className="flex min-h-screen flex-col">
-			<div className="flex flex-1 flex-col">
-				<Outlet />
+		<TooltipProvider>
+			<div className="flex min-h-screen flex-col">
+				<div className="flex flex-1 flex-col">
+					<Outlet />
+				</div>
+				<SiteFooter />
 			</div>
-			<SiteFooter />
-		</div>
+		</TooltipProvider>
 	);
 }
 
@@ -121,7 +124,7 @@ function RootErrorPage({ error, reset }: ErrorComponentProps) {
 							<Button variant="outline" asChild>
 								<Link to="/docs" className="inline-flex items-center gap-2">
 									<BookOpenText className="h-4 w-4" />
-									Read docs
+									Read the docs
 								</Link>
 							</Button>
 						</div>
@@ -164,7 +167,7 @@ function NotFoundPage() {
 							<Button variant="outline" asChild>
 								<Link to="/docs" className="inline-flex items-center gap-2">
 									<BookOpenText className="h-4 w-4" />
-									Read docs
+									Read the docs
 								</Link>
 							</Button>
 						</div>

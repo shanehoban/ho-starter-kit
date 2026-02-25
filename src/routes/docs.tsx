@@ -254,15 +254,11 @@ function DocsPage() {
 					<div className="flex flex-wrap items-center gap-3">
 						{loggedIn ? (
 							<Button asChild>
-								<Link to="/app">Open app</Link>
+								<Link to="/app">Go to app</Link>
 							</Button>
-						) : (
-							<Button asChild>
-								<Link to="/register">Create account</Link>
-							</Button>
-						)}
+						) : null}
 						<Button variant="outline" asChild>
-							<Link to="/">Back home</Link>
+							<Link to="/">Home</Link>
 						</Button>
 					</div>
 				</div>

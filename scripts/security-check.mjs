@@ -57,6 +57,7 @@ assertFileExists("security/audit-allowlist.json");
 assertFileExists("tests/e2e/route-security.spec.ts");
 assertFileExists("nitro.config.ts");
 assertFileExists("src/lib/csp.ts");
+assertFileExists("src/server/plugins/security-headers.mjs");
 
 assertContains(
 	"src/routes/awaiting-approval.tsx",
@@ -95,21 +96,26 @@ assertContains(
 );
 assertContains(
 	"nitro.config.ts",
+	/src\/server\/plugins\/security-headers\.mjs/,
+	'must register the security headers plugin in nitro config',
+);
+assertContains(
+	"src/server/plugins/security-headers.mjs",
 	/"X-Frame-Options": "DENY"/,
 	'must set X-Frame-Options header',
 );
 assertContains(
-	"nitro.config.ts",
+	"src/server/plugins/security-headers.mjs",
 	/"X-Content-Type-Options": "nosniff"/,
 	'must set X-Content-Type-Options header',
 );
 assertContains(
-	"nitro.config.ts",
-	/"Content-Security-Policy":/,
+	"src/server/plugins/security-headers.mjs",
+	/"Content-Security-Policy"/,
 	'must set a baseline Content-Security-Policy header',
 );
 assertContains(
-	"nitro.config.ts",
+	"src/server/plugins/security-headers.mjs",
 	/buildContentSecurityPolicy/,
 	'must build CSP through shared CSP policy helper',
 );

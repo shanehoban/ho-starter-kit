@@ -1,22 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-	ArrowRight,
-	CheckCircle2,
-	Database,
-	Github,
-	Rocket,
-	ShieldCheck,
-} from "lucide-react";
+import { ArrowRight, CheckCircle2, Database, Github, Rocket, ShieldCheck } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSession } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/")({
@@ -92,8 +79,8 @@ function HomePage() {
 							ho-starter-kit
 						</h1>
 						<p className="max-w-3xl text-sm text-muted-foreground sm:text-base">
-							TanStack Start template with production-oriented auth, role
-							access, migration safety, and deployment defaults.
+							TanStack Start template with production-oriented auth, role access, migration safety,
+							and deployment defaults.
 						</p>
 					</div>
 
@@ -113,10 +100,7 @@ function HomePage() {
 						) : (
 							<>
 								<Button asChild>
-									<Link
-										to="/register"
-										className="inline-flex items-center gap-2"
-									>
+									<Link to="/register" className="inline-flex items-center gap-2">
 										Create account
 									</Link>
 								</Button>
@@ -136,10 +120,7 @@ function HomePage() {
 				{pillars.map((pillar) => {
 					const Icon = pillar.icon;
 					return (
-						<Card
-							key={pillar.title}
-							className="border-border/80 bg-card/95 shadow-sm"
-						>
+						<Card key={pillar.title} className="border-border/80 bg-card/95 shadow-sm">
 							<CardHeader className="space-y-3">
 								<div className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border/70 bg-background/70">
 									<Icon className="h-4 w-4 text-foreground" />
@@ -157,8 +138,8 @@ function HomePage() {
 					<CardHeader>
 						<CardTitle>What you get out of the box</CardTitle>
 						<CardDescription>
-							A practical default stack designed for internal tools, SaaS
-							dashboards, and admin-heavy products.
+							A practical default stack designed for internal tools, SaaS dashboards, and
+							admin-heavy products.
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="grid gap-3 sm:grid-cols-2">

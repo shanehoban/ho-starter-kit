@@ -11,4 +11,5 @@ ENV NODE_ENV=production
 RUN apk add --no-cache bash && corepack enable && corepack prepare pnpm@9.1.0 --activate
 COPY --from=build /app .
 EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=5 CMD ["node", "-e", "fetch(`http://127.0.0.1:${process.env.PORT || 3000}/`).then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"]
 CMD ["sh", "-lc", "pnpm db:deploy-migrate && node .output/server/index.mjs"]

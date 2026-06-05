@@ -12,7 +12,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { getEmailLogs } from "@/server/email-logs";
+import { getEmailLogs, retryFailedEmailLog } from "@/server/email-logs";
 import { searchUsersForAdmin } from "@/server/users";
 
 const EMAIL_TYPES = ["user_registered", "user_approved", "password_reset"] as const;
@@ -41,11 +41,14 @@ export const Route = createFileRoute("/_authenticated/admin/email-logs")({
 });
 
 function EmailLogsPage() {
+	const { user } = Route.useRouteContext();
 	const { logs: initialLogs } = Route.useLoaderData();
 	const [logs, setLogs] = useState(initialLogs);
 	const [filters, setFilters] = useState({ type: "", status: "", userId: "" });
 	const [loading, setLoading] = useState(false);
+	const [retryingId, setRetryingId] = useState<number | null>(null);
 	const [error, setError] = useState("");
+	const [message, setMessage] = useState("");
 	const [query, setQuery] = useState("");
 	const [userQuery, setUserQuery] = useState("");
 	const [selectedUser, setSelectedUser] = useState<{
@@ -62,6 +65,7 @@ function EmailLogsPage() {
 	const fetchLogs = async (nextFilters: typeof filters) => {
 		setLoading(true);
 		setError("");
+		setMessage("");
 		try {
 			const nextLogs = await getEmailLogs({
 				data: {
@@ -82,6 +86,25 @@ function EmailLogsPage() {
 		const next = { ...filters, [key]: value };
 		setFilters(next);
 		await fetchLogs(next);
+	};
+
+	const handleRetry = async (logId: number) => {
+		setRetryingId(logId);
+		setError("");
+		setMessage("");
+		try {
+			const result = await retryFailedEmailLog({ data: { logId } });
+			await fetchLogs(filters);
+			setMessage(
+				result.success
+					? "Email retry queued."
+					: `Retry created a new failed log: ${result.error ?? "provider rejected the email"}`,
+			);
+		} catch (nextError) {
+			setError(nextError instanceof Error ? nextError.message : "Failed to retry email");
+		} finally {
+			setRetryingId(null);
+		}
 	};
 
 	const visibleLogs = useMemo(() => {
@@ -165,6 +188,8 @@ function EmailLogsPage() {
 		if (!value) return "—";
 		return new Date(value).toLocaleString();
 	};
+
+	const canRetryFailedEmails = user.role === "super-admin";
 
 	return (
 		<div className="space-y-4">
@@ -306,6 +331,7 @@ function EmailLogsPage() {
 						</div>
 					</div>
 
+					{message && <p className="text-sm text-muted-foreground">{message}</p>}
 					{error && <p className="text-sm text-destructive">{error}</p>}
 
 					<div className="rounded-md border">
@@ -318,13 +344,16 @@ function EmailLogsPage() {
 										<th className="px-3 py-2 text-left text-sm font-medium">Subject</th>
 										<th className="px-3 py-2 text-left text-sm font-medium">Type</th>
 										<th className="px-3 py-2 text-left text-sm font-medium">Status</th>
+										{canRetryFailedEmails && (
+											<th className="px-3 py-2 text-right text-sm font-medium">Actions</th>
+										)}
 									</tr>
 								</thead>
 								<tbody>
 									{visibleLogs.length === 0 ? (
 										<tr>
 											<td
-												colSpan={5}
+												colSpan={canRetryFailedEmails ? 6 : 5}
 												className="px-3 py-8 text-center text-sm text-muted-foreground"
 											>
 												{loading ? "Loading..." : "No email logs found"}
@@ -369,6 +398,23 @@ function EmailLogsPage() {
 														</p>
 													)}
 												</td>
+												{canRetryFailedEmails && (
+													<td className="px-3 py-2 text-right text-sm">
+														{log.status === "failed" ? (
+															<Button
+																type="button"
+																variant="outline"
+																size="sm"
+																disabled={retryingId === log.id || loading}
+																onClick={() => void handleRetry(log.id)}
+															>
+																{retryingId === log.id ? "Retrying..." : "Retry"}
+															</Button>
+														) : (
+															<span className="text-xs text-muted-foreground">—</span>
+														)}
+													</td>
+												)}
 											</tr>
 										))
 									)}
@@ -407,6 +453,18 @@ function EmailLogsPage() {
 											{log.userName && <span>{log.userName}</span>}
 										</div>
 										{log.error && <p className="text-xs text-destructive">{log.error}</p>}
+										{canRetryFailedEmails && log.status === "failed" && (
+											<Button
+												type="button"
+												variant="outline"
+												size="sm"
+												className="w-full"
+												disabled={retryingId === log.id || loading}
+												onClick={() => void handleRetry(log.id)}
+											>
+												{retryingId === log.id ? "Retrying..." : "Retry email"}
+											</Button>
+										)}
 									</div>
 								))
 							)}

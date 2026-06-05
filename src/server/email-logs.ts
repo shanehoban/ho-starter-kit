@@ -3,7 +3,10 @@ import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { emailLogs, users } from "@/db/schema";
-import { getAuthUser, requireAdmin } from "@/server/auth-utils";
+import { getAuthUser, requireAdmin, requireSuperAdmin } from "@/server/auth-utils";
+import { getEmailService } from "@/server/email/provider-factory";
+import { TemplateRenderer } from "@/server/email/template-renderer";
+import { assertSameOriginRequest } from "@/server/request-security";
 
 const emailTypeSchema = z.enum(["user_registered", "user_approved", "password_reset"]);
 const emailStatusSchema = z.enum(["pending", "sent", "delivered", "bounced", "failed"]);
@@ -14,6 +17,23 @@ const getEmailLogsInputSchema = z.object({
 	userId: z.string().trim().min(1).optional(),
 	limit: z.number().int().positive().max(1000).optional(),
 });
+
+const retryFailedEmailLogInputSchema = z.object({
+	logId: z.number().int().positive(),
+});
+
+export function parseEmailLogTemplateData(value: string | null): Record<string, unknown> {
+	if (!value) return {};
+	try {
+		const parsed = JSON.parse(value);
+		if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+			return parsed as Record<string, unknown>;
+		}
+	} catch {
+		// Invalid historical template data should not prevent retrying the original email shell.
+	}
+	return {};
+}
 
 export const getEmailLogs = createServerFn({ method: "GET" })
 	.inputValidator((data) => getEmailLogsInputSchema.parse(data ?? {}))
@@ -47,4 +67,38 @@ export const getEmailLogs = createServerFn({ method: "GET" })
 			.where(whereCondition)
 			.orderBy(desc(emailLogs.createdAt))
 			.limit(data.limit ?? 500);
+	});
+
+export const retryFailedEmailLog = createServerFn({ method: "POST" })
+	.inputValidator((data) => retryFailedEmailLogInputSchema.parse(data))
+	.handler(async ({ data }) => {
+		assertSameOriginRequest();
+		const user = await getAuthUser();
+		requireSuperAdmin(user);
+
+		const [log] = await db.select().from(emailLogs).where(eq(emailLogs.id, data.logId));
+		if (!log) {
+			throw new Error("Email log not found");
+		}
+		if (log.status !== "failed") {
+			throw new Error("Only failed emails can be retried");
+		}
+
+		const type = emailTypeSchema.parse(log.type);
+		const templateData = parseEmailLogTemplateData(log.templateData);
+		const { html, text } = await TemplateRenderer.render(type, templateData);
+		const result = await getEmailService().sendEmail({
+			userId: log.userId ?? undefined,
+			to: log.to,
+			subject: log.subject,
+			html,
+			text,
+			type,
+			templateData,
+		});
+
+		return {
+			success: result.success,
+			error: result.error ?? null,
+		};
 	});

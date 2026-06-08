@@ -7,7 +7,9 @@ export class NullProvider implements IEmailProvider {
 		console.warn("Email not sent (no provider configured)");
 		console.warn(`To: ${params.to}`);
 		console.warn(`Subject: ${params.subject}`);
-		console.warn("Configure RESEND_API_KEY and EMAIL_FROM to enable sending");
+		console.warn(
+			"Configure EMAIL_PROVIDER=homail, HOMAIL_API_KEY, and HOMAIL_FROM to enable sending",
+		);
 
 		return {
 			success: false,

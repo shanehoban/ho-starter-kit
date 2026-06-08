@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, LogOut, Menu, Shield, User } from "lucide-react";
+import { FeedbackDialog } from "@/components/feedback-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -9,14 +10,17 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { signOut } from "@/lib/auth-client";
+import type { FeedbackActionInput } from "@/lib/feedback";
 import { ThemeToggle } from "./theme-toggle";
 
 export function Nav({
 	user,
 	pendingApprovalCount,
+	onSendFeedback,
 }: {
 	user: { name: string; email: string; role: string };
 	pendingApprovalCount?: number;
+	onSendFeedback: (input: FeedbackActionInput) => Promise<unknown>;
 }) {
 	const isAdmin = user.role === "admin" || user.role === "super-admin";
 
@@ -67,6 +71,7 @@ export function Nav({
 				</div>
 
 				<div className="flex items-center gap-1.5 sm:gap-2">
+					<FeedbackDialog onSendFeedback={onSendFeedback} />
 					<ThemeToggle variant="ghost" size="icon" />
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>

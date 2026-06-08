@@ -1,4 +1,5 @@
 import { render } from "@react-email/render";
+import { FeedbackEmail } from "@/emails/feedback";
 import { PasswordResetEmail } from "@/emails/password-reset";
 import { UserApprovedEmail } from "@/emails/user-approved";
 import { UserRegisteredEmail } from "@/emails/user-registered";
@@ -14,6 +15,7 @@ const templateRenderers: Record<
 		UserApprovedEmail(data as unknown as Parameters<typeof UserApprovedEmail>[0]),
 	password_reset: (data) =>
 		PasswordResetEmail(data as unknown as Parameters<typeof PasswordResetEmail>[0]),
+	feedback: (data) => FeedbackEmail(data as unknown as Parameters<typeof FeedbackEmail>[0]),
 };
 
 export const TemplateRenderer = {

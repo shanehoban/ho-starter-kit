@@ -1,6 +1,8 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { Nav } from "@/components/nav";
+import type { FeedbackActionInput } from "@/lib/feedback";
+import { sendFeedbackAction } from "@/server/feedback";
 import { requireApprovedFn } from "@/server/session.server";
 import { getAdminStats } from "@/server/users";
 
@@ -52,10 +54,15 @@ export const Route = createFileRoute("/_authenticated")({
 
 function AuthenticatedLayout() {
 	const { user, pendingApprovalCount } = Route.useRouteContext();
+	const handleSendFeedback = (input: FeedbackActionInput) => sendFeedbackAction({ data: input });
 
 	return (
 		<div className="flex flex-1 flex-col">
-			<Nav user={user} pendingApprovalCount={pendingApprovalCount} />
+			<Nav
+				user={user}
+				pendingApprovalCount={pendingApprovalCount}
+				onSendFeedback={handleSendFeedback}
+			/>
 			<main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-5 sm:py-6">
 				<Outlet />
 			</main>

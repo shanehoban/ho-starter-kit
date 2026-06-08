@@ -19,7 +19,16 @@ This template deploys with `nixpacks.toml` by default.
 - `DB_PROVIDER=sqlite` or `DB_PROVIDER=postgres`
 - `BETTER_AUTH_SECRET=<strong random secret>` > Generate: openssl rand -base64 32
 - `BETTER_AUTH_URL=https://your-domain.example`
+- `APP_NAME=your-app-name`
 - `CSP_SCRIPT_NONCE=<random nonce>` > Generate: openssl rand -base64 24
+
+For outbound email and signed-in feedback:
+
+- `EMAIL_PROVIDER=homail` for real sends, or `EMAIL_PROVIDER=null` to log without delivery.
+- `HOMAIL_BASE_URL=https://homail.shanehoban.com`
+- `HOMAIL_API_KEY=hm_live_<keyId>_<secret>`
+- `HOMAIL_FROM="Starter Kit <noreply@example.com>"`
+- `FEEDBACK_TO_EMAIL=you@example.com`
 
 For SQLite:
 

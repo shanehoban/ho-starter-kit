@@ -73,7 +73,7 @@ export const emailLogs = pgTable("email_logs", {
 	subject: text("subject").notNull(),
 	type: text("type").notNull(),
 	templateData: text("template_data"),
-	provider: text("provider").notNull().default("resend"),
+	provider: text("provider").notNull().default("homail"),
 	providerId: text("provider_id"),
 	status: text("status").notNull().default("pending"),
 	error: text("error"),

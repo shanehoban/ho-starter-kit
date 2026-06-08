@@ -33,6 +33,7 @@ Required (all providers):
 - `BETTER_AUTH_TRUSTED_ORIGINS` (optional comma-separated absolute origins)
 - `CSP_SCRIPT_NONCE` (optional, recommended for production CSP nonce)
 - `DB_PROVIDER` (`sqlite` or `postgres`)
+- `APP_NAME` (used in feedback email subjects; defaults to `ho-starter-kit`)
 
 SQLite:
 
@@ -45,9 +46,11 @@ Postgres:
 
 Optional:
 
-- `EMAIL_PROVIDER` (`null` or `resend`)
-- `RESEND_API_KEY` (required if `EMAIL_PROVIDER=resend`)
-- `EMAIL_FROM` (required if `EMAIL_PROVIDER=resend`)
+- `EMAIL_PROVIDER` (`null` or `homail`)
+- `HOMAIL_BASE_URL` (defaults to `https://homail.shanehoban.com`)
+- `HOMAIL_API_KEY` (required if `EMAIL_PROVIDER=homail`)
+- `HOMAIL_FROM` (required if `EMAIL_PROVIDER=homail`; `EMAIL_FROM` is accepted as a fallback)
+- `FEEDBACK_TO_EMAIL` (required when using the signed-in feedback widget with real sends)
 - `BACKUP_DIR`, `MAX_BACKUPS` (SQLite backup behavior)
 
 Generate a Better Auth secret:

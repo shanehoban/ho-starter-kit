@@ -21,7 +21,7 @@ CREATE TABLE "email_logs" (
 	"subject" text NOT NULL,
 	"type" text NOT NULL,
 	"template_data" text,
-	"provider" text DEFAULT 'resend' NOT NULL,
+	"provider" text DEFAULT 'homail' NOT NULL,
 	"provider_id" text,
 	"status" text DEFAULT 'pending' NOT NULL,
 	"error" text,

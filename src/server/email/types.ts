@@ -1,4 +1,4 @@
-export type EmailLogType = "user_registered" | "user_approved" | "password_reset";
+export type EmailLogType = "user_registered" | "user_approved" | "password_reset" | "feedback";
 
 export type SendEmailParams = {
 	to: string;

@@ -91,9 +91,9 @@ const stackDocs = [
 		description: "Templated transactional email components.",
 	},
 	{
-		name: "Resend",
-		href: "https://resend.com/docs",
-		description: "Optional transactional email provider.",
+		name: "Homail",
+		href: "https://homail.shanehoban.com/docs",
+		description: "Transactional email provider for starter-kit app emails.",
 	},
 	{
 		name: "shadcn/ui",
@@ -117,6 +117,7 @@ const includedFeatures = [
 	"Approval-first auth model (member/admin/super-admin)",
 	"Admin tools: user approval, role management, password reset flows",
 	"Email logging persisted in DB by default (provider optional)",
+	"Signed-in feedback dialog that sends through the configured email provider",
 	"SQLite + Postgres migration scripts and smoke checks",
 	"Route/security E2E coverage and release audit pipeline",
 ] as const;
@@ -146,6 +147,11 @@ const envVars = [
 			"Comma-separated absolute origins additionally trusted by Better Auth. BETTER_AUTH_URL origin is always trusted.",
 	},
 	{
+		name: "APP_NAME",
+		required: "Optional",
+		description: "Human-readable app identifier used in feedback email subjects.",
+	},
+	{
 		name: "CSP_SCRIPT_NONCE",
 		required: "Optional (recommended in production)",
 		description:
@@ -169,17 +175,27 @@ const envVars = [
 	{
 		name: "EMAIL_PROVIDER",
 		required: "Optional",
-		description: "Set to null or resend (recommended local default: null).",
+		description: "Set to null or homail (recommended local default: null).",
 	},
 	{
-		name: "RESEND_API_KEY",
-		required: "Required when EMAIL_PROVIDER=resend",
-		description: "API key for Resend provider.",
+		name: "HOMAIL_BASE_URL",
+		required: "Optional when EMAIL_PROVIDER=homail",
+		description: "Homail API base URL. Defaults to https://homail.shanehoban.com.",
 	},
 	{
-		name: "EMAIL_FROM",
-		required: "Required when EMAIL_PROVIDER=resend",
-		description: "From address label for outbound mail.",
+		name: "HOMAIL_API_KEY",
+		required: "Required when EMAIL_PROVIDER=homail",
+		description: "Homail project API key with email:send scope.",
+	},
+	{
+		name: "HOMAIL_FROM",
+		required: "Required when EMAIL_PROVIDER=homail",
+		description: "Verified sender used for outbound mail.",
+	},
+	{
+		name: "FEEDBACK_TO_EMAIL",
+		required: "Required for feedback sends",
+		description: "Destination for signed-in user feedback emails.",
 	},
 	{
 		name: "BACKUP_DIR",
@@ -359,8 +375,9 @@ function IncludedTabContent() {
 					<CardContent className="space-y-3">
 						<p className="text-sm text-muted-foreground">
 							Use <code>EMAIL_PROVIDER=null</code> for local/dev. This keeps flows testable without
-							real delivery. Set <code>EMAIL_PROVIDER=resend</code>, <code>RESEND_API_KEY</code>,
-							and <code>EMAIL_FROM</code> when you want real sends.
+							real delivery. Set <code>EMAIL_PROVIDER=homail</code>, <code>HOMAIL_API_KEY</code>,
+							<code>HOMAIL_FROM</code>, and <code>FEEDBACK_TO_EMAIL</code> when you want real sends
+							and feedback emails.
 						</p>
 						<pre className="overflow-x-auto rounded-md border border-border/70 bg-background/60 p-3 text-xs sm:text-sm">
 							{`SELECT id, "to", subject, status, provider, created_at

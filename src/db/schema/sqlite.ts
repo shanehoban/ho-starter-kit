@@ -79,9 +79,11 @@ export const emailLogs = sqliteTable("email_logs", {
 	userId: text("user_id").references(() => users.id, { onDelete: "set null" }),
 	to: text("to").notNull(),
 	subject: text("subject").notNull(),
-	type: text("type", { enum: ["user_registered", "user_approved", "password_reset"] }).notNull(),
+	type: text("type", {
+		enum: ["user_registered", "user_approved", "password_reset", "feedback"],
+	}).notNull(),
 	templateData: text("template_data"),
-	provider: text("provider").notNull().default("resend"),
+	provider: text("provider").notNull().default("homail"),
 	providerId: text("provider_id"),
 	status: text("status", { enum: ["pending", "sent", "delivered", "bounced", "failed"] })
 		.notNull()

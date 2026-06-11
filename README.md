@@ -133,6 +133,8 @@ Audit policy:
 ## Coolify build path
 
 - default: `Nixpacks` (`nixpacks.toml`)
+- local development uses `.nvmrc` to pin Node `v24.16.0`
+- Coolify/Nixpacks uses Node 24 major (`nodejs_24` / `NIXPACKS_NODE_VERSION=24`)
 - optional: `Dockerfile`
 - sqlite on Coolify requires persistent storage mount at `/app/data`
 - postgres path uses `DB_PROVIDER=postgres` + `DATABASE_URL` (no sqlite volume required)

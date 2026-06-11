@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["nodejs_20", "pnpm"]
+nixPkgs = ["nodejs_24", "pnpm"]
 
 [phases.install]
 cmds = ["pnpm install --frozen-lockfile --prod=false --child-concurrency=2"]
@@ -12,5 +12,5 @@ cmd = "pnpm db:deploy-migrate && node .output/server/index.mjs"
 
 [variables]
 NODE_ENV = "production"
-NIXPACKS_NODE_VERSION = "20.20.0"
+NIXPACKS_NODE_VERSION = "24"
 NODE_BUILD_MEMORY_MB = "1280"

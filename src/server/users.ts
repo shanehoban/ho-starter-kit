@@ -78,7 +78,7 @@ export const getAllUsers = createServerFn({ method: "GET" }).handler(async () =>
 });
 
 export const searchUsersForAdmin = createServerFn({ method: "GET" })
-	.inputValidator((data) => searchUsersInputSchema.parse(data))
+	.validator((data) => searchUsersInputSchema.parse(data))
 	.handler(async ({ data }) => {
 		const user = await getAuthUser();
 		requireAdmin(user);
@@ -109,7 +109,7 @@ export const getPendingUsers = createServerFn({ method: "GET" }).handler(async (
 });
 
 export const getAdminUser = createServerFn({ method: "GET" })
-	.inputValidator((data) => userIdSchema.parse(data))
+	.validator((data) => userIdSchema.parse(data))
 	.handler(async ({ data }) => {
 		const admin = await getAuthUser();
 		requireAdmin(admin);
@@ -134,7 +134,7 @@ export const getAdminUser = createServerFn({ method: "GET" })
 	});
 
 export const approveUser = createServerFn({ method: "POST" })
-	.inputValidator((data) => userIdSchema.parse(data))
+	.validator((data) => userIdSchema.parse(data))
 	.handler(async ({ data }) => {
 		assertSameOriginRequest();
 		const admin = await getAuthUser();
@@ -161,7 +161,7 @@ export const approveUser = createServerFn({ method: "POST" })
 	});
 
 export const updateUser = createServerFn({ method: "POST" })
-	.inputValidator((data) => updateUserSchema.parse(data))
+	.validator((data) => updateUserSchema.parse(data))
 	.handler(async ({ data }) => {
 		assertSameOriginRequest();
 		const admin = await getAuthUser();
@@ -219,7 +219,7 @@ export const updateUser = createServerFn({ method: "POST" })
 	});
 
 export const adminResetPassword = createServerFn({ method: "POST" })
-	.inputValidator((data) => adminResetPasswordSchema.parse(data))
+	.validator((data) => adminResetPasswordSchema.parse(data))
 	.handler(async ({ data }) => {
 		assertSameOriginRequest();
 		const admin = await getAuthUser();
@@ -265,7 +265,7 @@ export const adminResetPassword = createServerFn({ method: "POST" })
 	});
 
 export const updateProfile = createServerFn({ method: "POST" })
-	.inputValidator((data) => updateProfileSchema.parse(data))
+	.validator((data) => updateProfileSchema.parse(data))
 	.handler(async ({ data }) => {
 		assertSameOriginRequest();
 		const user = await getAuthUser();
@@ -284,7 +284,7 @@ export const updateProfile = createServerFn({ method: "POST" })
 	});
 
 export const changeMyPassword = createServerFn({ method: "POST" })
-	.inputValidator((data) => changePasswordSchema.parse(data))
+	.validator((data) => changePasswordSchema.parse(data))
 	.handler(async ({ data }) => {
 		assertSameOriginRequest();
 		const user = await getAuthUser();
@@ -312,7 +312,7 @@ export const changeMyPassword = createServerFn({ method: "POST" })
 	});
 
 export const requestPasswordReset = createServerFn({ method: "POST" })
-	.inputValidator((data) => requestPasswordResetSchema.parse(data))
+	.validator((data) => requestPasswordResetSchema.parse(data))
 	.handler(async ({ data }) => {
 		assertSameOriginRequest();
 		const allowed = await checkPublicRateLimit("requestPasswordReset", 6, 15);
@@ -352,7 +352,7 @@ export const requestPasswordReset = createServerFn({ method: "POST" })
 	});
 
 export const sendPasswordResetLinkAsAdmin = createServerFn({ method: "POST" })
-	.inputValidator((data) => userIdSchema.parse(data))
+	.validator((data) => userIdSchema.parse(data))
 	.handler(async ({ data }) => {
 		assertSameOriginRequest();
 		const admin = await getAuthUser();
@@ -404,7 +404,7 @@ export const sendPasswordResetLinkAsAdmin = createServerFn({ method: "POST" })
 	});
 
 export const resetPassword = createServerFn({ method: "POST" })
-	.inputValidator((data) => resetPasswordSchema.parse(data))
+	.validator((data) => resetPasswordSchema.parse(data))
 	.handler(async ({ data }) => {
 		assertSameOriginRequest();
 		const isValid = await verifyToken(data.email, data.token);

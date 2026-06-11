@@ -5,7 +5,6 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
-import viteTsConfigPaths from "vite-tsconfig-paths";
 
 const config = defineConfig(({ command }) => {
 	const isDevServer = command === "serve";
@@ -33,22 +32,12 @@ const config = defineConfig(({ command }) => {
 			minify: "esbuild",
 			rollupOptions: {
 				// Ensure Node.js modules are not included in client bundle
-				external: (id) => {
-					// Externalize all node: protocol imports during client builds
-					if (id.startsWith("node:")) {
-						return true;
-					}
-					return false;
-				},
+				external: [/^node:/u],
 			},
 		},
 		plugins: [
 			...(isDevServer ? [devtools()] : []),
 			nitro(),
-			// this is the plugin that enables path aliases
-			viteTsConfigPaths({
-				projects: ["./tsconfig.json"],
-			}),
 			tailwindcss(),
 			tanstackStart(),
 			viteReact(),

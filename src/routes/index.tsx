@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CheckCircle2, Database, Github, Rocket, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Database, GitFork, Rocket, ShieldCheck } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -58,7 +58,7 @@ function HomePage() {
 							aria-label="Open ho-starter-kit on GitHub"
 							title="Open ho-starter-kit on GitHub"
 						>
-							<Github className="h-4 w-4" />
+							<GitFork className="h-4 w-4" />
 						</a>
 					</Button>
 					<ThemeToggle variant="outline" size="icon" />

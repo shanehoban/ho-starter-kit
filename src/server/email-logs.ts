@@ -36,7 +36,7 @@ export function parseEmailLogTemplateData(value: string | null): Record<string, 
 }
 
 export const getEmailLogs = createServerFn({ method: "GET" })
-	.inputValidator((data) => getEmailLogsInputSchema.parse(data ?? {}))
+	.validator((data) => getEmailLogsInputSchema.parse(data ?? {}))
 	.handler(async ({ data }) => {
 		const user = await getAuthUser();
 		requireAdmin(user);
@@ -70,7 +70,7 @@ export const getEmailLogs = createServerFn({ method: "GET" })
 	});
 
 export const retryFailedEmailLog = createServerFn({ method: "POST" })
-	.inputValidator((data) => retryFailedEmailLogInputSchema.parse(data))
+	.validator((data) => retryFailedEmailLogInputSchema.parse(data))
 	.handler(async ({ data }) => {
 		assertSameOriginRequest();
 		const user = await getAuthUser();

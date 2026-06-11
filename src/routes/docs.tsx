@@ -6,7 +6,7 @@ import {
 	ExternalLink,
 	FileCheck2,
 	FlaskConical,
-	Github,
+	GitFork,
 	Mail,
 	Rocket,
 	ShieldAlert,
@@ -242,7 +242,7 @@ function DocsPage() {
 							aria-label="Open ho-starter-kit on GitHub"
 							title="Open ho-starter-kit on GitHub"
 						>
-							<Github className="h-4 w-4" />
+							<GitFork className="h-4 w-4" />
 						</a>
 					</Button>
 					<ThemeToggle variant="outline" size="icon" />

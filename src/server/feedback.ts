@@ -79,7 +79,7 @@ export function buildFeedbackTemplateData(params: {
 }
 
 export const sendFeedbackAction = createServerFn({ method: "POST" })
-	.inputValidator((data) => feedbackInputSchema.parse(data))
+	.validator((data) => feedbackInputSchema.parse(data))
 	.handler(async ({ data }) => {
 		const [{ getAuthUser, requireApproved }, { assertSameOriginRequest }, { sendFeedbackEmail }] =
 			await Promise.all([

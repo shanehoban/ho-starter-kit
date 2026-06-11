@@ -1,40 +1,23 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
 import { Nav } from "@/components/nav";
 import type { FeedbackActionInput } from "@/lib/feedback";
 import { sendFeedbackAction } from "@/server/feedback";
-import { requireApprovedFn } from "@/server/session.server";
+import { requireApprovedFn } from "@/server/session";
 import { getAdminStats } from "@/server/users";
-
-type AuthUser = {
-	id: string;
-	name: string;
-	email: string;
-	role: string;
-	approved: boolean;
-	phone: string | null;
-	mustChangePassword: boolean;
-};
-
-const getAuthUser = createServerFn({ method: "GET" }).handler(async () => {
-	try {
-		const user = await requireApprovedFn();
-		return user as AuthUser;
-	} catch (error) {
-		if (error instanceof Error && error.message === "Unauthorized") {
-			throw redirect({ to: "/login" });
-		}
-		if (error instanceof Error && error.message === "Account not approved") {
-			throw redirect({ to: "/awaiting-approval" });
-		}
-		throw error;
-	}
-});
 
 export const Route = createFileRoute("/_authenticated")({
 	component: AuthenticatedLayout,
 	beforeLoad: async () => {
-		const user = await getAuthUser();
+		const user = await requireApprovedFn().catch((error: unknown) => {
+			if (error instanceof Error && error.message === "Unauthorized") {
+				throw redirect({ to: "/login" });
+			}
+			if (error instanceof Error && error.message === "Account not approved") {
+				throw redirect({ to: "/awaiting-approval" });
+			}
+			throw error;
+		});
+
 		if (!user) throw redirect({ to: "/login" });
 		if (user.mustChangePassword) throw redirect({ to: "/change-password" });
 

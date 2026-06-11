@@ -1,29 +1,22 @@
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signOut } from "@/lib/auth-client";
-import { requireAuthFn } from "@/server/session.server";
+import { requireAuthFn } from "@/server/session";
 import { changeMyPassword } from "@/server/users";
-
-const checkMustChangePassword = createServerFn({ method: "GET" }).handler(async () => {
-	try {
-		const { user } = await requireAuthFn();
-		const typedUser = user as typeof user & { mustChangePassword?: boolean };
-		if (!typedUser.mustChangePassword) throw redirect({ to: "/app" });
-		return true;
-	} catch {
-		throw redirect({ to: "/login" });
-	}
-});
 
 export const Route = createFileRoute("/change-password")({
 	component: ChangePasswordPage,
 	beforeLoad: async () => {
-		await checkMustChangePassword();
+		const { user } = await requireAuthFn().catch(() => {
+			throw redirect({ to: "/login" });
+		});
+
+		const typedUser = user as typeof user & { mustChangePassword?: boolean };
+		if (!typedUser.mustChangePassword) throw redirect({ to: "/app" });
 	},
 });
 

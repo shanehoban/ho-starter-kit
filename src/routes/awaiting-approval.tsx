@@ -1,23 +1,20 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
 import { Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getAuthUserFn } from "@/server/session.server";
-
-const checkApproval = createServerFn({ method: "GET" }).handler(async () => {
-	const result = await getAuthUserFn();
-	if (!result) {
-		throw redirect({ to: "/" });
-	}
-	if (result?.approved) {
-		throw redirect({ to: "/app" });
-	}
-});
+import { getAuthUserFn } from "@/server/session";
 
 export const Route = createFileRoute("/awaiting-approval")({
 	component: AwaitingApprovalPage,
-	beforeLoad: () => checkApproval(),
+	beforeLoad: async () => {
+		const result = await getAuthUserFn();
+		if (!result) {
+			throw redirect({ to: "/" });
+		}
+		if (result.approved) {
+			throw redirect({ to: "/app" });
+		}
+	},
 });
 
 function AwaitingApprovalPage() {

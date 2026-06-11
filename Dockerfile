@@ -1,6 +1,7 @@
 FROM node:24-alpine AS build
 WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
+ENV CI=true
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN corepack enable && pnpm install --frozen-lockfile --prod=false
 COPY . .
 ARG NODE_BUILD_MEMORY_MB=1280
@@ -9,6 +10,7 @@ RUN NODE_OPTIONS=--max-old-space-size=${NODE_BUILD_MEMORY_MB} pnpm build && pnpm
 FROM node:24-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
+ENV CI=true
 RUN apk add --no-cache bash && corepack enable && corepack prepare pnpm@11.5.3 --activate
 COPY --from=build /app .
 EXPOSE 3000

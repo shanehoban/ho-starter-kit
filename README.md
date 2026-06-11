@@ -4,7 +4,7 @@
 
 [Demo](https://hsk.shanehoban.com) | [Docs](https://hsk.shanehoban.com/docs)
 
-TanStack Start + Better Auth + Drizzle starter with:
+TanStack Start + Better Auth + Drizzle starter with: 
 
 - default approval-based auth workflow (`member`, `admin`, `super-admin`)
 - SQLite or Postgres support (out of the box for SQLite, opt-in for Postgres)

@@ -47,8 +47,8 @@ importers:
         specifier: ^2.0.8
         version: 2.0.8(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@shanehoban/homail':
-        specifier: ^0.1.1
-        version: 0.1.1
+        specifier: ^0.1.2
+        version: 0.1.2
       '@tailwindcss/vite':
         specifier: ^4.3.0
         version: 4.3.0(vite@8.0.16(@types/node@24.13.1)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4))
@@ -389,8 +389,8 @@ packages:
       '@csstools/css-parser-algorithms': ^4.0.0
       '@csstools/css-tokenizer': ^4.0.0
 
-  '@csstools/css-color-parser@4.1.1':
-    resolution: {integrity: sha512-eZ5XOtyhK+mggRafYUWzA0tvaYOFgdY8AkgQiCJF9qNAePnUo/zmsqqYubBBb3sQ8uNUaSKTY9s9klfRaAXL0g==}
+  '@csstools/css-color-parser@4.1.3':
+    resolution: {integrity: sha512-DOgvIPkikIOixQRlD4YF31VN6fLLUTdrzhfRbis8vm0kMTgIbEPX0Ip/YX9fOeV9iywAS4sUUbTclpan7yYP8Q==}
     engines: {node: '>=20.19.0'}
     peerDependencies:
       '@csstools/css-parser-algorithms': ^4.0.0
@@ -1906,9 +1906,9 @@ packages:
   '@selderee/plugin-htmlparser2@0.11.0':
     resolution: {integrity: sha512-P33hHGdldxGabLFjPPpaTxVolMrzrcegejx+0GxjrIb9Zv48D8yAIA/QTDR2dFl7Uz7urX8aX6+5bCZslr+gWQ==}
 
-  '@shanehoban/homail@0.1.1':
-    resolution: {integrity: sha512-oxbNeFZXuos3ZrN8l4qhYGSnicDxo8VKW7C6vR+Cepd2C36Qk92IYH+RSpQvniC8sAtGWEMwY6L4WHtY5DCx2A==}
-    engines: {node: '>=20.18.0 <21', pnpm: '>=9 <10'}
+  '@shanehoban/homail@0.1.2':
+    resolution: {integrity: sha512-kT27iVBsYjxKHHgOv+Vys2LaCalFj7H+sE+MNNDNCjWiuFRhkHTQv0MgZN0qdTtT8OUQ+MdEMZ1xrtdezPv1yw==}
+    engines: {node: '>=20.18.0 <25', pnpm: '>=11 <12'}
 
   '@socket.io/component-emitter@3.1.2':
     resolution: {integrity: sha512-9BCxFwvbGg/RsZK9tjXd8s4UcwR0MWeFQ1XEKIQVVvAGJyINdrqKMcTRyLoK8Rse1GjzLV9cwjWV1olXRWEXVA==}
@@ -3854,7 +3854,7 @@ snapshots:
   '@asamuzakjp/css-color@4.1.2':
     dependencies:
       '@csstools/css-calc': 3.2.1(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
-      '@csstools/css-color-parser': 4.1.1(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
+      '@csstools/css-color-parser': 4.1.3(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-tokenizer': 4.0.0
       lru-cache: 11.5.1
@@ -4093,7 +4093,7 @@ snapshots:
       '@csstools/css-tokenizer': 4.0.0
     optional: true
 
-  '@csstools/css-color-parser@4.1.1(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)':
+  '@csstools/css-color-parser@4.1.3(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)':
     dependencies:
       '@csstools/color-helpers': 6.0.2
       '@csstools/css-calc': 3.2.1(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
@@ -5150,7 +5150,7 @@ snapshots:
       domhandler: 5.0.3
       selderee: 0.11.0
 
-  '@shanehoban/homail@0.1.1': {}
+  '@shanehoban/homail@0.1.2': {}
 
   '@socket.io/component-emitter@3.1.2': {}
 

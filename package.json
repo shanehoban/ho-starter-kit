@@ -62,7 +62,7 @@
     "@radix-ui/react-tooltip": "^1.2.9",
     "@react-email/components": "^1.0.12",
     "@react-email/render": "^2.0.8",
-    "@shanehoban/homail": "^0.1.1",
+    "@shanehoban/homail": "^0.1.2",
     "@tailwindcss/vite": "^4.3.0",
     "@tanstack/react-router": "^1.170.15",
     "@tanstack/react-start": "^1.168.25",

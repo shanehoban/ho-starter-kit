@@ -11,7 +11,7 @@ FROM node:24-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 ENV CI=true
-RUN apk add --no-cache bash && corepack enable && corepack prepare pnpm@11.5.3 --activate
+RUN apk add --no-cache bash && corepack enable && corepack prepare pnpm@11.6.0 --activate
 COPY --from=build /app .
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=5 CMD ["node", "-e", "fetch(`http://127.0.0.1:${process.env.PORT || 3000}/`).then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"]

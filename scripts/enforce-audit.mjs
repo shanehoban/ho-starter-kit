@@ -2,6 +2,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 
 const severityRank = {
 	info: 0,
@@ -44,8 +45,15 @@ function parseAuditJson(auditText) {
 
 function runAuditJson() {
 	if (!auditFilePath) {
-		console.error("Missing --audit-file argument.");
-		process.exit(1);
+		const result = spawnSync("pnpm", ["audit", "--json"], {
+			encoding: "utf8",
+			maxBuffer: 10 * 1024 * 1024,
+		});
+		if (result.error || result.signal || ![0, 1].includes(result.status)) {
+			console.error("Dependency audit could not complete.", result.error ?? result.stderr);
+			process.exit(1);
+		}
+		return parseAuditJson(result.stdout);
 	}
 	if (!fs.existsSync(auditFilePath)) {
 		console.error(`Audit file not found: ${auditFilePath}`);
@@ -107,6 +115,16 @@ function isAllowlisted(advisory, policyEntry) {
 }
 
 const audit = runAuditJson();
+if (
+	audit.error ||
+	!audit.advisories ||
+	typeof audit.advisories !== "object" ||
+	Array.isArray(audit.advisories) ||
+	!audit.metadata?.vulnerabilities
+) {
+	console.error("Dependency audit returned an error or an incomplete report.");
+	process.exit(1);
+}
 const policy = loadPolicy();
 const threshold = policy.severityThreshold;
 
@@ -120,7 +138,10 @@ const failing = [];
 
 for (const advisory of advisories) {
 	const advisorySeverity = advisory.severity ?? "info";
-	if (!(advisorySeverity in severityRank)) continue;
+	if (!(advisorySeverity in severityRank)) {
+		console.error(`Unknown advisory severity: ${advisorySeverity}`);
+		process.exit(1);
+	}
 	if (severityRank[advisorySeverity] < severityRank[threshold]) continue;
 
 	const matchedAllowlist = policy.allowlist.find((entry) => isAllowlisted(advisory, entry));
@@ -132,7 +153,19 @@ for (const advisory of advisories) {
 		module: advisory.module_name,
 		title: advisory.title,
 		url: advisory.url,
+		patchedVersions: advisory.patched_versions,
 	});
+}
+
+const summary = `Dependency audit: ${failing.length} blocking advisories (threshold: ${threshold}).`;
+console.log(summary);
+if (process.env.GITHUB_STEP_SUMMARY) {
+	const lines = [
+		"### Dependency audit",
+		summary,
+		...failing.map((item) => `- **${item.severity}** ${item.module}: ${item.url} (patched: ${item.patchedVersions ?? "no published fix"})`),
+	];
+	fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join("\n")}\n`);
 }
 
 if (failing.length > 0) {
@@ -142,6 +175,7 @@ if (failing.length > 0) {
 	for (const item of failing) {
 		console.error(`- [${item.severity}] ${item.module} (${item.id}): ${item.title}`);
 		console.error(`  ${item.url}`);
+		console.error(`  Patched versions: ${item.patchedVersions ?? "no published fix"}`);
 	}
 	process.exit(1);
 }

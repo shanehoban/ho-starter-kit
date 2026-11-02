@@ -33,34 +33,7 @@ async function registerUser(page: Page, name: string, email: string) {
 	await gotoAllowRedirectAbort(page, "/awaiting-approval");
 }
 
-async function approveUserInDatabase(email: string) {
-	const provider = (process.env.DB_PROVIDER ?? "sqlite").toLowerCase();
-	if (provider === "postgres") {
-		const databaseUrl = process.env.DATABASE_URL;
-		if (!databaseUrl) {
-			throw new Error("DATABASE_URL is required for postgres E2E approval helper.");
-		}
-		const postgres = (await import("postgres")).default;
-		const sql = postgres(databaseUrl, { max: 1, connect_timeout: 5 });
-		try {
-			await sql`update "users" set "approved" = true where "email" = ${email}`;
-		} finally {
-			await sql.end({ timeout: 0 });
-		}
-		return;
-	}
-
-	const dbPath = process.env.DB_PATH ?? "./sqlite.db";
-	const Database = (await import("better-sqlite3")).default;
-	const db = new Database(dbPath);
-	try {
-		db.prepare('update "users" set "approved" = 1 where "email" = ?').run(email);
-	} finally {
-		db.close();
-	}
-}
-
-test("enforces protected-route and approval flow", async ({ browser, page }) => {
+test("enforces protected routes, rejection and later approval", async ({ browser, page }) => {
 	const anonymous = await browser.newContext();
 	const anonymousPage = await anonymous.newPage();
 	await anonymousPage.goto("/app");
@@ -94,8 +67,23 @@ test("enforces protected-route and approval flow", async ({ browser, page }) => 
 	await page.goto("/admin/users");
 	const pendingCard = page.locator("div.rounded-md.border").filter({ hasText: memberEmail }).first();
 	await expect(pendingCard).toBeVisible();
-	await approveUserInDatabase(memberEmail);
-	await page.reload();
+	await pendingCard.getByRole("button", { name: "Reject", exact: true }).click();
+	const rejectedCard = page.locator("div.rounded-md.border").filter({ hasText: memberEmail }).first();
+	await expect(rejectedCard.getByText("Rejected", { exact: true })).toBeVisible();
+
+	// Rejection revokes existing sessions; signing in again still cannot grant app access.
+	await memberPage.goto("/app");
+	await expect(memberPage).toHaveURL(/\/login$/);
+	const signInResponse = await memberContext.request.post("/api/auth/sign-in/email", {
+		data: { email: memberEmail, password },
+	});
+	expect(signInResponse.ok()).toBe(true);
+	await memberPage.goto("/app");
+	await expect(memberPage).toHaveURL(/\/awaiting-approval$/);
+	await expect(memberPage.getByText("Access request rejected", { exact: true })).toBeVisible();
+
+	await rejectedCard.getByRole("button", { name: "Approve", exact: true }).click();
+	await expect(page.getByText("User approved", { exact: true })).toBeVisible();
 
 	await memberPage.goto("/awaiting-approval");
 	await expect(memberPage).toHaveURL(/\/app$/);

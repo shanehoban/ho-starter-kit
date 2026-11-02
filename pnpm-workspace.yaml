@@ -6,7 +6,11 @@ allowBuilds:
   sharp: true
 minimumReleaseAgeExclude:
   - '@shanehoban/homail@0.1.2'
+# Security fixes for transitive dependencies whose parents still request older ranges.
+# Keep these narrow so compatible packages continue to resolve normally.
 overrides:
-  '@vitest/coverage-v8>test-exclude': 7.0.2
-  glob>minimatch: 10.2.3
-  next: 16.2.6
+  '@esbuild-kit/core-utils>esbuild': ^0.25.12
+  'seroval@<1.6.10': ^1.7.6
+  'seroval-plugins@<1.6.10': ^1.7.6
+  'glob@<14.0.2': ^14.0.2
+  'minimatch@<11.0.1': ^11.0.1

@@ -165,6 +165,10 @@ async function main() {
 	const provider = parseProviderArg();
 	const providerList = provider === "all" ? ["sqlite", "postgres"] : [provider];
 	const skipE2E = process.env.RELEASE_AUDIT_SKIP_E2E === "1";
+	const skipSharedChecks = process.argv.includes("--skip-shared-checks");
+	if (skipSharedChecks && !fs.existsSync(path.join(process.cwd(), ".output", "nitro.json"))) {
+		throw new Error("--skip-shared-checks requires a production build from the shared CI job.");
+	}
 	const maxArtifacts = Number(process.env.RELEASE_AUDIT_MAX_ARTIFACTS ?? "10");
 	const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
 	const artifactsRootDir = path.join(
@@ -179,6 +183,7 @@ async function main() {
 	const report = {
 		startedAt: new Date().toISOString(),
 		provider,
+		skipSharedChecks,
 		artifactsDir,
 		steps: [],
 		success: false,
@@ -210,11 +215,13 @@ async function main() {
 							],
 						],
 					]),
-			["verify", "pnpm", ["verify"]],
-			["build", "pnpm", ["build"]],
-			["naming check", "pnpm", ["naming:check"]],
-			["security checks", "pnpm", ["security:check"]],
-			["audit enforcement", "pnpm", ["security:audit"]],
+			...(skipSharedChecks ? [] : [
+				["verify", "pnpm", ["verify:coverage"]],
+				["build", "pnpm", ["build"]],
+				["naming check", "pnpm", ["naming:check"]],
+				["security checks", "pnpm", ["security:check", "--skip-tests"]],
+				["audit enforcement", "pnpm", ["security:audit"]],
+			]),
 		]) {
 			const [name, command, args] = step;
 			const result = runCommand(name, command, args);
@@ -233,8 +240,6 @@ async function main() {
 				ensureDir(providerOutputDir);
 
 				const sqliteSteps = [
-					["sqlite migrate", "pnpm", ["db:apply-migrations"]],
-					["sqlite integrity", "pnpm", ["db:check"]],
 					["sqlite smoke", "pnpm", ["db:smoke"]],
 				];
 				if (!skipE2E) {
@@ -308,8 +313,6 @@ async function main() {
 				ensureDir(providerOutputDir);
 
 				const postgresSteps = [
-					["postgres migrate", "pnpm", ["db:apply-migrations"]],
-					["postgres integrity", "pnpm", ["db:check"]],
 					["postgres smoke", "pnpm", ["db:smoke"]],
 				];
 				if (!skipE2E) {

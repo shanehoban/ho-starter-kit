@@ -141,6 +141,7 @@ assertCountAtLeast(
 	"must enforce same-origin checks on every POST write server function",
 );
 
+if (!process.argv.includes("--skip-tests")) {
 runCommand("origin-guard tests", "pnpm", ["test", "src/server/origin-guard.test.ts"]);
 runCommand("auth-guards tests", "pnpm", ["test", "src/server/auth-guards.test.ts"]);
 runCommand("password-reset-policy tests", "pnpm", ["test", "src/server/password-reset-policy.test.ts"]);
@@ -151,6 +152,8 @@ runCommandIfFileExists(
 	"pnpm",
 	["test", "src/server/rate-limiter.test.ts"],
 );
+
+}
 
 if (errors.length > 0) {
 	console.error("Security checks failed:");

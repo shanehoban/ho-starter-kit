@@ -157,3 +157,9 @@ Not enabled by default, but recommended when needed:
 - migration history recovery guard in `scripts/apply-migrations.js` (SQLite path)
 - structured audit-log diffs for admin actions
 - hardened media upload pipeline (mime + signature checks + rollback)
+
+## CI checks
+
+CI runs lint, type checks, tests with coverage, a production build, dependency auditing, and SQLite/Postgres migration checks. Monorepo pull requests also run the browser access-control flow against both database providers, reusing one production build. See [SECURITY.md](SECURITY.md) for the release gate and audit policy.
+
+Run the shared checks locally with `pnpm verify:coverage`, `pnpm build`, `pnpm naming:check`, `pnpm security:check --skip-tests`, and `pnpm security:audit`. Run `pnpm release:audit` for the full gate, including browser and database checks.

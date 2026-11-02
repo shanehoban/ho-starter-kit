@@ -131,16 +131,16 @@ describe("signup rejection", () => {
 		expect(mocks.set).not.toHaveBeenCalled();
 	});
 
-	it.each([
-		{ approved: true },
-		{ role: "super-admin" },
-	])("protects existing access and super-admin accounts: %j", async (changes) => {
-		mocks.selectRows = [{ ...target, ...changes }];
-		await expect(rejectUser({ data: { userId: "target" } })).rejects.toThrow(
-			"Only unapproved users can be rejected",
-		);
-		expect(mocks.set).not.toHaveBeenCalled();
-	});
+	it.each([{ approved: true }, { role: "super-admin" }])(
+		"protects existing access and super-admin accounts: %j",
+		async (changes) => {
+			mocks.selectRows = [{ ...target, ...changes }];
+			await expect(rejectUser({ data: { userId: "target" } })).rejects.toThrow(
+				"Only unapproved users can be rejected",
+			);
+			expect(mocks.set).not.toHaveBeenCalled();
+		},
+	);
 
 	it("reports a missing user", async () => {
 		mocks.selectRows = [];

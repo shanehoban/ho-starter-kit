@@ -11,6 +11,12 @@ TanStack Start + Better Auth + Drizzle starter with:
 - reusable UI primitives and protected route patterns
 - migration scripts ready for local + Coolify deploys
 
+## Signup approval and rejection
+
+After the first user becomes super-admin, new signups wait for approval. Super-admins can **Approve** or **Reject** them at `/admin/users`. Rejected accounts stay unapproved, have their sessions revoked, and move out of the pending queue into **Rejected users**. A super-admin can approve a rejected account later. Regular admins can manage other user details but cannot change signup approval.
+
+Apply the checked-in migration for the configured database provider before starting the updated app (`pnpm db:apply-migrations`). Existing users retain their approval state.
+
 ## Quick start
 
 ```bash

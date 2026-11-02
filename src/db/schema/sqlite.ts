@@ -10,6 +10,7 @@ export const users = sqliteTable("users", {
 		.notNull()
 		.default("member"),
 	approved: integer("approved", { mode: "boolean" }).notNull().default(false),
+	rejected: integer("rejected", { mode: "boolean" }).notNull().default(false),
 	phone: text("phone"),
 	mustChangePassword: integer("must_change_password", { mode: "boolean" }).notNull().default(false),
 	createdAt: integer("created_at", { mode: "timestamp" })

@@ -16,6 +16,7 @@ import {
 	approveUser,
 	getAllUsers,
 	getPendingUsers,
+	rejectUser,
 	sendPasswordResetLinkAsAdmin,
 	updateUser,
 } from "@/server/users";
@@ -33,6 +34,7 @@ type AdminUser = {
 	email: string;
 	role: "member" | "admin" | "super-admin";
 	approved: boolean;
+	rejected: boolean;
 	phone: string | null;
 	mustChangePassword: boolean;
 	createdAt: Date;
@@ -64,6 +66,8 @@ function AdminUsersPage() {
 	const [search, setSearch] = useState("");
 	const [roleDrafts, setRoleDrafts] = useState<Record<string, EditableRole>>({});
 
+	const canApproveUsers = user.role === "super-admin";
+
 	const approvedUsers = useMemo(() => {
 		const q = search.trim().toLowerCase();
 		const approvedOnly = data.all.filter((entry: AdminUser) => entry.approved);
@@ -86,6 +90,20 @@ function AdminUsersPage() {
 			await refresh();
 		} catch (error) {
 			setMessage(error instanceof Error ? error.message : "Failed to approve user");
+		} finally {
+			setWorkingId(null);
+		}
+	};
+
+	const handleReject = async (userId: string) => {
+		setWorkingId(userId);
+		setMessage("");
+		try {
+			await rejectUser({ data: { userId } });
+			setMessage("User rejected. Access remains blocked.");
+			await refresh();
+		} catch (error) {
+			setMessage(error instanceof Error ? error.message : "Failed to reject user");
 		} finally {
 			setWorkingId(null);
 		}
@@ -145,12 +163,56 @@ function AdminUsersPage() {
 									<p className="font-medium">{entry.name}</p>
 									<p className="text-sm text-muted-foreground">{entry.email}</p>
 								</div>
-								<Button disabled={workingId === entry.id} onClick={() => handleApprove(entry.id)}>
-									Approve
-								</Button>
+								{canApproveUsers && (
+									<div className="flex flex-wrap gap-2">
+										<Button disabled={workingId !== null} onClick={() => handleApprove(entry.id)}>
+											Approve
+										</Button>
+										<Button
+											variant="destructive"
+											disabled={workingId !== null}
+											onClick={() => handleReject(entry.id)}
+										>
+											Reject
+										</Button>
+									</div>
+								)}
 							</div>
 						))
 					)}
+				</CardContent>
+			</Card>
+
+			<Card className="border-border/80 shadow-sm">
+				<CardHeader>
+					<CardTitle>Rejected users</CardTitle>
+					<CardDescription>
+						These accounts cannot access the app. A super-admin can approve them later.
+					</CardDescription>
+				</CardHeader>
+				<CardContent className="space-y-3">
+					{data.all.filter((entry) => entry.rejected).length === 0 && (
+						<p className="text-sm text-muted-foreground">No rejected users.</p>
+					)}
+					{data.all
+						.filter((entry) => entry.rejected)
+						.map((entry) => (
+							<div
+								key={entry.id}
+								className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3"
+							>
+								<div>
+									<p className="font-medium">{entry.name}</p>
+									<p className="text-sm text-muted-foreground">{entry.email}</p>
+									<Badge variant="destructive">Rejected</Badge>
+								</div>
+								{canApproveUsers && (
+									<Button disabled={workingId !== null} onClick={() => handleApprove(entry.id)}>
+										Approve
+									</Button>
+								)}
+							</div>
+						))}
 				</CardContent>
 			</Card>
 

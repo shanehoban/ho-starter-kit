@@ -5,7 +5,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { accounts, notifications, sessions, users } from "@/db/schema";
 import { toAppUrl } from "@/server/app-url";
-import { getAuthUser, requireAdmin } from "@/server/auth-utils";
+import { getAuthUser, requireAdmin, requireSuperAdmin } from "@/server/auth-utils";
 import { sendPasswordResetEmail, sendUserApprovedEmail } from "@/server/email/notification-emailer";
 import { checkEmailRateLimit } from "@/server/email/rate-limiter";
 import { createVerificationToken, verifyToken } from "@/server/email/verification-tokens";
@@ -68,6 +68,7 @@ export const getAllUsers = createServerFn({ method: "GET" }).handler(async () =>
 			email: users.email,
 			role: users.role,
 			approved: users.approved,
+			rejected: users.rejected,
 			phone: users.phone,
 			mustChangePassword: users.mustChangePassword,
 			createdAt: users.createdAt,
@@ -104,7 +105,7 @@ export const getPendingUsers = createServerFn({ method: "GET" }).handler(async (
 			createdAt: users.createdAt,
 		})
 		.from(users)
-		.where(eq(users.approved, false))
+		.where(and(eq(users.approved, false), eq(users.rejected, false)))
 		.orderBy(asc(users.createdAt));
 });
 
@@ -121,6 +122,7 @@ export const getAdminUser = createServerFn({ method: "GET" })
 				email: users.email,
 				role: users.role,
 				approved: users.approved,
+				rejected: users.rejected,
 				phone: users.phone,
 				mustChangePassword: users.mustChangePassword,
 				createdAt: users.createdAt,
@@ -138,7 +140,7 @@ export const approveUser = createServerFn({ method: "POST" })
 	.handler(async ({ data }) => {
 		assertSameOriginRequest();
 		const admin = await getAuthUser();
-		requireAdmin(admin);
+		requireSuperAdmin(admin);
 
 		const [targetUser] = await db.select().from(users).where(eq(users.id, data.userId));
 		if (!targetUser) throw new Error("User not found");
@@ -146,7 +148,7 @@ export const approveUser = createServerFn({ method: "POST" })
 
 		await db
 			.update(users)
-			.set({ approved: true, updatedAt: new Date(), updatedBy: admin.id })
+			.set({ approved: true, rejected: false, updatedAt: new Date(), updatedBy: admin.id })
 			.where(eq(users.id, data.userId));
 
 		await db.insert(notifications).values({
@@ -157,6 +159,33 @@ export const approveUser = createServerFn({ method: "POST" })
 
 		await sendUserApprovedEmail({ userId: data.userId });
 
+		return { success: true };
+	});
+
+export const rejectUser = createServerFn({ method: "POST" })
+	.validator((data) => userIdSchema.parse(data))
+	.handler(async ({ data }) => {
+		assertSameOriginRequest();
+		const admin = await getAuthUser();
+		requireSuperAdmin(admin);
+		if (admin.id === data.userId) throw new Error("Cannot reject yourself");
+
+		const [targetUser] = await db.select().from(users).where(eq(users.id, data.userId));
+		if (!targetUser) throw new Error("User not found");
+		if (targetUser.approved || targetUser.role === "super-admin") {
+			throw new Error("Only unapproved users can be rejected");
+		}
+
+		const [rejectedUser] = await db
+			.update(users)
+			.set({ rejected: true, updatedAt: new Date(), updatedBy: admin.id })
+			.where(
+				and(eq(users.id, data.userId), eq(users.approved, false), eq(users.role, targetUser.role)),
+			)
+			.returning({ id: users.id });
+		if (!rejectedUser) throw new Error("User status changed. Refresh and try again.");
+
+		await db.delete(sessions).where(eq(sessions.userId, data.userId));
 		return { success: true };
 	});
 
@@ -177,6 +206,8 @@ export const updateUser = createServerFn({ method: "POST" })
 		if (data.role === "super-admin" && admin.role !== "super-admin") {
 			throw new Error("Only super-admins can promote to super-admin");
 		}
+
+		if (data.approved !== undefined) requireSuperAdmin(admin);
 
 		const removesSuperAdminRole =
 			targetUser.role === "super-admin" && data.role !== undefined && data.role !== "super-admin";
@@ -199,7 +230,8 @@ export const updateUser = createServerFn({ method: "POST" })
 				name: data.name ?? targetUser.name,
 				phone: data.phone ?? targetUser.phone,
 				role: data.role ?? targetUser.role,
-				approved: data.approved ?? targetUser.approved,
+				...(data.approved !== undefined ? { approved: data.approved } : {}),
+				...(data.approved === true ? { rejected: false } : {}),
 				mustChangePassword: data.mustChangePassword ?? targetUser.mustChangePassword,
 				updatedAt: new Date(),
 				updatedBy: admin.id,
@@ -445,7 +477,10 @@ export const getAdminStats = createServerFn({ method: "GET" }).handler(async () 
 	const user = await getAuthUser();
 	requireAdmin(user);
 
-	const pendingUsers = await db.select().from(users).where(eq(users.approved, false));
+	const pendingUsers = await db
+		.select()
+		.from(users)
+		.where(and(eq(users.approved, false), eq(users.rejected, false)));
 
 	return {
 		pendingUserCount: pendingUsers.length,

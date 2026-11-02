@@ -14,10 +14,12 @@ export const Route = createFileRoute("/awaiting-approval")({
 		if (result.approved) {
 			throw redirect({ to: "/app" });
 		}
+		return { rejected: result?.user.rejected === true };
 	},
 });
 
 function AwaitingApprovalPage() {
+	const { rejected } = Route.useRouteContext();
 	return (
 		<div className="flex flex-1 items-center justify-center p-6">
 			<Card className="w-full max-w-sm border-border/80 text-center shadow-sm">
@@ -25,9 +27,13 @@ function AwaitingApprovalPage() {
 					<div className="mb-2 flex justify-center">
 						<Clock className="h-12 w-12 text-muted-foreground" />
 					</div>
-					<CardTitle className="text-2xl">Awaiting Approval</CardTitle>
+					<CardTitle className="text-2xl">
+						{rejected ? "Access request rejected" : "Awaiting Approval"}
+					</CardTitle>
 					<CardDescription>
-						Your account has been created but still needs admin approval.
+						{rejected
+							? "Your request for access has been rejected. You cannot access the app."
+							: "Your account has been created but still needs super-admin approval."}
 					</CardDescription>
 				</CardHeader>
 				<CardContent>

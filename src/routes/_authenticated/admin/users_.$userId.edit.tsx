@@ -57,7 +57,7 @@ function EditUserPage() {
 	const currentIsSuperAdmin = currentUser.role === "super-admin";
 	const roleDisabled =
 		(isSelf && !currentIsSuperAdmin) || (targetIsSuperAdmin && !currentIsSuperAdmin) || saving;
-	const approvedDisabled = isSelf || saving;
+	const approvedDisabled = isSelf || saving || currentUser.role !== "super-admin";
 	const canDirectlyResetPassword = !isSelf || currentIsSuperAdmin;
 
 	const handleSaveUser = async (e: React.FormEvent) => {
@@ -77,7 +77,7 @@ function EditUserPage() {
 					name: name.trim(),
 					phone: phone.trim() || null,
 					role,
-					approved,
+					...(currentUser.role === "super-admin" ? { approved } : {}),
 					mustChangePassword,
 				},
 			});
